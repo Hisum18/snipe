@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: snipe_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/snipe_test
+      # Dummy values so env validation (src/env.ts) passes for typecheck/build/tests.
+      # Real secrets live only in the deployment environment.
+      APP_URL: https://ci.example
+      NEXT_PUBLIC_APP_URL: https://ci.example
+      AUTH_SECRET: ci-secret-0123456789abcdef0123456789abcdef
+      RESEND_API_KEY: re_ci
+      EMAIL_FROM: "Snipe <ci@example.com>"
+      UPSTASH_REDIS_REST_URL: https://ci.upstash.io
+      UPSTASH_REDIS_REST_TOKEN: ci
+      STRIPE_SECRET_KEY: sk_test_ci
+      STRIPE_WEBHOOK_SECRET: whsec_ci
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_ci
+      STRIPE_PRICE_PRO_MONTHLY: price_pro_monthly
+      STRIPE_PRICE_PRO_ANNUAL: price_pro_annual
+      STRIPE_PRICE_MAX_MONTHLY: price_max_monthly
+      STRIPE_PRICE_MAX_ANNUAL: price_max_annual
+      CRON_SECRET: ci-cron-secret-0123456789abcdef
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Apply the Drizzle schema to the Postgres service (node-postgres driver).
+      - run: npm run db:migrate
+
+      - run: npm run typecheck
+      - run: npm run lint
+
+      # RUN_DB_TESTS=1 runs the integration + authorization suites against the
+      # service DB (via the node-postgres alias in vitest.config.ts).
+      - run: RUN_DB_TESTS=1 npm test
+
+      - run: npm run build
+
+      # Fail only on high/critical advisories; the known dev-only moderates
+      # (drizzle-kit's esbuild loader) are accepted.
+      - run: npm audit --audit-level=high
