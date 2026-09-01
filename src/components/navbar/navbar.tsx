@@ -11,7 +11,7 @@ type Item = { label: string; href: string };
 
 const LOGGED_OUT: Item[] = [
   { label: "Home", href: "/" },
-  { label: "How it works", href: "/#how" },
+  { label: "How it works", href: "/how-it-works" },
   { label: "Pricing", href: "/pricing" },
 ];
 
@@ -195,10 +195,10 @@ export function Navbar({ authed, email }: { authed: boolean; email?: string }) {
                 Sign in
               </Link>
               <Link
-                href="/#get-started"
+                href="/login"
                 className="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-sm font-semibold text-black transition-colors hover:bg-neutral-200"
               >
-                Get alerts <ArrowRight className="h-4 w-4" />
+                Get started <ArrowRight className="h-4 w-4" />
               </Link>
             </>
           )}
