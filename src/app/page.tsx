@@ -38,21 +38,21 @@ const STATS = [
 
 export default function LandingPage() {
   return (
-    <>
+    <div className="min-h-dvh bg-black text-white selection:bg-white selection:text-black">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border/10 bg-bg/70 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-black/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-content items-center justify-between gap-4 px-6 py-3">
           <Link
             href="/"
-            className="flex items-center gap-2 text-lg font-bold tracking-tight"
+            className="flex items-center gap-2 text-lg font-bold tracking-tight text-white"
           >
-            <Target className="h-5 w-5 text-primary-bright" />
+            <Target className="h-5 w-5 text-white" />
             Snipe
           </Link>
           <Navbar />
           <a
             href="#get-started"
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-bright"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-sm font-semibold text-black transition-colors hover:bg-neutral-200"
           >
             Get alerts <ArrowRight className="h-4 w-4" />
           </a>
@@ -63,43 +63,43 @@ export default function LandingPage() {
         {/* Hero */}
         <section className="grid items-center gap-12 py-16 md:grid-cols-2 md:py-24">
           <div className="animate-fade-up">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border/10 bg-surface/60 px-3 py-1 text-xs text-muted">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.03] px-3 py-1 text-xs text-neutral-400">
               <span className="relative flex h-2 w-2">
-                <span className="live-dot absolute inline-flex h-2 w-2 rounded-full bg-accent" />
+                <span className="live-dot absolute inline-flex h-2 w-2 rounded-full bg-white" />
               </span>
               New jobs detected in under a minute
             </span>
             <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl">
               Apply before <br />
-              <span className="bg-gradient-to-r from-primary-bright to-accent-bright bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-white to-neutral-500 bg-clip-text text-transparent">
                 the flood.
               </span>
             </h1>
-            <p className="mt-5 max-w-md text-lg leading-relaxed text-muted">
+            <p className="mt-5 max-w-md text-lg leading-relaxed text-neutral-400">
               Snipe watches companies&apos; applicant tracking systems directly
               and alerts you within minutes of a new posting — so your
               application lands near the top of the pile, not buried under a
               thousand others.
             </p>
             <div id="get-started" className="mt-8 max-w-md scroll-mt-24">
-              <SignupForm redirectTo="/pricing?welcome=1" />
+              <SignupForm mono redirectTo="/pricing?welcome=1" />
             </div>
-            <p className="mt-6 flex items-center gap-2 text-xs text-muted">
-              <ShieldCheck className="h-4 w-4 text-accent-bright" />
+            <p className="mt-6 flex items-center gap-2 text-xs text-neutral-500">
+              <ShieldCheck className="h-4 w-4 text-neutral-400" />
               No password. One-time sign-in link. Cancel anytime.
             </p>
           </div>
 
           <div
-            className="animate-fade-up rounded-2xl border border-border/10 bg-surface p-6 shadow-card"
+            className="animate-fade-up rounded-2xl border border-white/[0.08] bg-[#050505] p-6"
             style={{ animationDelay: "120ms" }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-wider text-muted">
+              <span className="text-xs font-medium uppercase tracking-wider text-neutral-500">
                 Live feed
               </span>
-              <span className="inline-flex items-center gap-1.5 text-xs text-accent-bright">
-                <span className="live-dot h-1.5 w-1.5 rounded-full bg-accent" />
+              <span className="inline-flex items-center gap-1.5 text-xs text-neutral-300">
+                <span className="live-dot h-1.5 w-1.5 rounded-full bg-white" />
                 watching 1,284 boards
               </span>
             </div>
@@ -111,16 +111,16 @@ export default function LandingPage() {
               ].map(([title, company, loc, ago], i) => (
                 <li
                   key={title}
-                  className="animate-fade-up flex items-center justify-between gap-4 rounded-xl border border-border/[0.06] bg-surface-2/60 px-4 py-3"
+                  className="animate-fade-up flex items-center justify-between gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3"
                   style={{ animationDelay: `${240 + i * 90}ms` }}
                 >
                   <div className="min-w-0">
-                    <div className="truncate font-medium text-fg">{title}</div>
-                    <div className="truncate text-xs text-muted">
+                    <div className="truncate font-medium text-white">{title}</div>
+                    <div className="truncate text-xs text-neutral-500">
                       {company} · {loc}
                     </div>
                   </div>
-                  <span className="shrink-0 rounded-full bg-accent/15 px-2 py-0.5 text-xs text-accent-bright tabular">
+                  <span className="shrink-0 rounded-full bg-white/[0.08] px-2 py-0.5 text-xs text-neutral-300 tabular">
                     {ago}
                   </span>
                 </li>
@@ -130,13 +130,13 @@ export default function LandingPage() {
         </section>
 
         {/* Trust / stats strip */}
-        <section className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border/10 bg-border/10 md:grid-cols-4">
+        <section className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.08] md:grid-cols-4">
           {STATS.map((s) => (
-            <div key={s.l} className="bg-surface px-6 py-6 text-center">
-              <div className="text-2xl font-bold tracking-tight text-fg tabular">
+            <div key={s.l} className="bg-[#050505] px-6 py-6 text-center">
+              <div className="text-2xl font-bold tracking-tight text-white tabular">
                 {s.n}
               </div>
-              <div className="mt-1 text-xs text-muted">{s.l}</div>
+              <div className="mt-1 text-xs text-neutral-500">{s.l}</div>
             </div>
           ))}
         </section>
@@ -144,36 +144,36 @@ export default function LandingPage() {
         {/* How it works */}
         <section id="how" className="scroll-mt-24 py-20">
           <h2 className="text-2xl font-bold tracking-tight">How it works</h2>
-          <p className="mt-2 text-muted">Three steps from URL to first alert.</p>
+          <p className="mt-2 text-neutral-400">Three steps from URL to first alert.</p>
           <div className="mt-8 grid gap-5 md:grid-cols-3">
             {STEPS.map((s, i) => (
               <div
                 key={s.t}
-                className="rounded-2xl border border-border/10 bg-surface p-6 transition-colors hover:border-border/20"
+                className="rounded-2xl border border-white/[0.08] bg-[#050505] p-6 transition-colors hover:border-white/[0.15]"
               >
-                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary-bright ring-1 ring-inset ring-primary/20">
+                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.06] text-white ring-1 ring-inset ring-white/10">
                   <s.icon className="h-5 w-5" />
                 </div>
                 <h3 className="flex items-center gap-2 font-semibold">
-                  <span className="text-xs text-muted tabular">
+                  <span className="text-xs text-neutral-500 tabular">
                     0{i + 1}
                   </span>
                   {s.t}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted">{s.d}</p>
+                <p className="mt-2 text-sm leading-relaxed text-neutral-400">{s.d}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* Pricing teaser → dedicated /pricing page */}
-        <section id="pricing" className="scroll-mt-24 border-t border-border/10 py-20">
-          <div className="flex flex-col items-center gap-6 rounded-3xl border border-border/10 bg-surface p-10 text-center md:flex-row md:justify-between md:text-left">
+        <section id="pricing" className="scroll-mt-24 border-t border-white/[0.08] py-20">
+          <div className="flex flex-col items-center gap-6 rounded-3xl border border-white/[0.08] bg-[#050505] p-10 text-center md:flex-row md:justify-between md:text-left">
             <div>
               <h2 className="text-2xl font-bold tracking-tight">
                 Simple, scale-friendly pricing.
               </h2>
-              <p className="mt-2 max-w-lg text-muted">
+              <p className="mt-2 max-w-lg text-neutral-400">
                 Free forever to start. Pro and Max unlock faster polling, more
                 companies, and Discord &amp; SMS alerts — see every feature side by
                 side.
@@ -181,7 +181,7 @@ export default function LandingPage() {
             </div>
             <Link
               href="/pricing"
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-bright"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-neutral-200"
             >
               See plans &amp; compare <ArrowRight className="h-4 w-4" />
             </Link>
@@ -189,28 +189,28 @@ export default function LandingPage() {
         </section>
 
         {/* CTA band */}
-        <section className="my-8 overflow-hidden rounded-3xl border border-border/10 bg-gradient-to-br from-primary/15 via-surface to-surface p-10 text-center shadow-glow">
+        <section className="my-8 overflow-hidden rounded-3xl border border-white/[0.1] bg-gradient-to-br from-white/[0.06] to-transparent p-10 text-center">
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
             Stop refreshing careers pages.
           </h2>
-          <p className="mx-auto mt-3 max-w-md text-muted">
+          <p className="mx-auto mt-3 max-w-md text-neutral-400">
             Let Snipe watch them for you and ping you the second something opens.
           </p>
           <div className="mx-auto mt-7 max-w-md">
-            <SignupForm compact redirectTo="/pricing?welcome=1" />
+            <SignupForm compact mono redirectTo="/pricing?welcome=1" />
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-border/10 py-10 text-sm text-muted">
+        <footer className="border-t border-white/[0.08] py-10 text-sm text-neutral-500">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <span className="flex items-center gap-2">
-              <Target className="h-4 w-4 text-primary-bright" />© {new Date().getFullYear()} Snipe
+              <Target className="h-4 w-4 text-neutral-400" />© {new Date().getFullYear()} Snipe
             </span>
             <span>Polls public ATS endpoints. Not affiliated with any employer.</span>
           </div>
         </footer>
       </main>
-    </>
+    </div>
   );
 }
