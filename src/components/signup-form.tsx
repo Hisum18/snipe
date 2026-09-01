@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { z } from "zod";
 
@@ -9,7 +10,16 @@ const emailSchema = z.string().trim().email().max(254);
 
 type Status = "idle" | "sending" | "sent" | "error";
 
-export function SignupForm({ compact = false }: { compact?: boolean }) {
+export function SignupForm({
+  compact = false,
+  redirectTo,
+}: {
+  compact?: boolean;
+  /** If set, navigate here after the link is sent instead of showing the
+   *  inline confirmation (used on marketing pages to route to pricing). */
+  redirectTo?: string;
+}) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
@@ -44,6 +54,7 @@ export function SignupForm({ compact = false }: { compact?: boolean }) {
       }
       setStatus("sent");
       setMessage("Check your inbox for a sign-in link. It expires in 15 minutes.");
+      if (redirectTo) router.push(redirectTo);
     } catch {
       setStatus("error");
       setMessage("Network error. Please try again.");
