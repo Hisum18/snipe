@@ -8,6 +8,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // --- Snipe's native tokens (unchanged) ---
         bg: withAlpha("--bg"),
         surface: {
           DEFAULT: withAlpha("--surface"),
@@ -19,14 +20,36 @@ const config: Config = {
         primary: {
           DEFAULT: withAlpha("--primary"),
           bright: withAlpha("--primary-bright"),
+          // shadcn pairing: text on a --primary surface (near-white).
+          foreground: withAlpha("--fg"),
         },
         accent: {
           DEFAULT: withAlpha("--accent"),
           bright: withAlpha("--accent-bright"),
+          // shadcn pairing: text on an --accent (emerald) surface (dark).
+          foreground: withAlpha("--bg"),
         },
         warning: withAlpha("--warning"),
         destructive: withAlpha("--destructive"),
         ring: withAlpha("--ring"),
+
+        // --- shadcn/ui token aliases, mapped onto the same channels so the
+        // installed primitives (button/card/toggle) render in Snipe's palette
+        // instead of pulling in a second theme. Additive: no native key above
+        // is redefined, so existing `text-muted`, `bg-primary`, etc. are intact.
+        background: withAlpha("--bg"),
+        foreground: withAlpha("--fg"),
+        card: withAlpha("--surface"),
+        "card-foreground": withAlpha("--fg"),
+        popover: withAlpha("--surface"),
+        "popover-foreground": withAlpha("--fg"),
+        secondary: withAlpha("--surface-2"),
+        "secondary-foreground": withAlpha("--fg"),
+        "muted-foreground": withAlpha("--muted"),
+        "primary-foreground": withAlpha("--fg"),
+        "accent-foreground": withAlpha("--bg"),
+        "destructive-foreground": withAlpha("--fg"),
+        input: withAlpha("--border"),
       },
       fontFamily: {
         sans: [

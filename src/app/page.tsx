@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { PricingTable, type PricingTier } from "@/components/pricing-table";
 import { SignupForm } from "@/components/signup-form";
 import {
   ArrowRight,
@@ -10,47 +9,6 @@ import {
   Target,
   Timer,
 } from "@/components/icons";
-import { PLAN_LIMITS, PLAN_PRICING, type PlanTier } from "@/config/plans";
-
-function pollingLabel(seconds: number): string {
-  if (seconds >= 24 * 60 * 60) return "Daily digest";
-  if (seconds >= 60 * 60) return `${seconds / 3600}-hour polling`;
-  if (seconds >= 60) return `${seconds / 60}-minute polling`;
-  return `${seconds}-second polling`;
-}
-
-function channelsLabel(channels: readonly string[]): string {
-  return channels
-    .map((c) => (c === "sms" ? "SMS" : c[0]!.toUpperCase() + c.slice(1)))
-    .join(" + ");
-}
-
-function featuresFor(tier: PlanTier): string[] {
-  const l = PLAN_LIMITS[tier];
-  const companies =
-    l.maxCompanies === null
-      ? "Unlimited companies"
-      : `${l.maxCompanies} companies watched`;
-  const profiles =
-    l.maxProfiles === null
-      ? "Unlimited profiles"
-      : `${l.maxProfiles} alert profile${l.maxProfiles === 1 ? "" : "s"}`;
-  const features = [
-    companies,
-    pollingLabel(l.pollIntervalSeconds),
-    profiles,
-    channelsLabel(l.channels),
-  ];
-  if (l.fullHistoryExport) features.push("Full job history + CSV export");
-  if (l.crossCompanySearch) features.push("Cross-company keyword search");
-  return features;
-}
-
-const TAGLINES: Record<PlanTier, string> = {
-  free: "Test the waters on a few companies.",
-  pro: "For focused job hunts across your shortlist.",
-  max: "Maximum coverage, minimum latency.",
-};
 
 const STEPS = [
   {
@@ -78,16 +36,6 @@ const STATS = [
 ];
 
 export default function LandingPage() {
-  const tiers: PricingTier[] = (["free", "pro", "max"] as const).map((tier) => ({
-    tier,
-    label: PLAN_LIMITS[tier].label,
-    priceMonthly: PLAN_PRICING[tier].monthly,
-    priceAnnual: PLAN_PRICING[tier].annual,
-    tagline: TAGLINES[tier],
-    features: featuresFor(tier),
-    highlighted: tier === "pro",
-  }));
-
   return (
     <>
       {/* Header */}
@@ -107,12 +55,12 @@ export default function LandingPage() {
             >
               How it works
             </a>
-            <a
-              href="#pricing"
+            <Link
+              href="/pricing"
               className="rounded-lg px-3 py-2 text-muted transition-colors hover:text-fg"
             >
               Pricing
-            </a>
+            </Link>
             <Link
               href="/login"
               className="rounded-lg px-3 py-2 text-muted transition-colors hover:text-fg"
@@ -152,7 +100,7 @@ export default function LandingPage() {
               thousand others.
             </p>
             <div id="get-started" className="mt-8 max-w-md scroll-mt-24">
-              <SignupForm />
+              <SignupForm redirectTo="/pricing?welcome=1" />
             </div>
             <p className="mt-6 flex items-center gap-2 text-xs text-muted">
               <ShieldCheck className="h-4 w-4 text-accent-bright" />
@@ -236,13 +184,26 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Pricing */}
+        {/* Pricing teaser → dedicated /pricing page */}
         <section id="pricing" className="scroll-mt-24 border-t border-border/10 py-20">
-          <div className="mb-10 text-center">
-            <h2 className="text-2xl font-bold tracking-tight">Simple pricing</h2>
-            <p className="mt-2 text-muted">Start free. Upgrade when speed matters.</p>
+          <div className="flex flex-col items-center gap-6 rounded-3xl border border-border/10 bg-surface p-10 text-center md:flex-row md:justify-between md:text-left">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">
+                Simple, scale-friendly pricing.
+              </h2>
+              <p className="mt-2 max-w-lg text-muted">
+                Free forever to start. Pro and Max unlock faster polling, more
+                companies, and Discord &amp; SMS alerts — see every feature side by
+                side.
+              </p>
+            </div>
+            <Link
+              href="/pricing"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-bright"
+            >
+              See plans &amp; compare <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-          <PricingTable tiers={tiers} />
         </section>
 
         {/* CTA band */}
@@ -254,7 +215,7 @@ export default function LandingPage() {
             Let Snipe watch them for you and ping you the second something opens.
           </p>
           <div className="mx-auto mt-7 max-w-md">
-            <SignupForm compact />
+            <SignupForm compact redirectTo="/pricing?welcome=1" />
           </div>
         </section>
 
