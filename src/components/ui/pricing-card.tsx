@@ -53,12 +53,12 @@ interface PricingSectionProps {
 
 function Cell({ value }: { value: ComparisonCell }) {
   if (typeof value === "string") {
-    return <span className="text-sm text-fg/90">{value}</span>;
+    return <span className="text-sm text-neutral-200">{value}</span>;
   }
   return value ? (
-    <Check className="mx-auto h-5 w-5 text-accent-bright" aria-label="Included" />
+    <Check className="mx-auto h-5 w-5 text-white" aria-label="Included" />
   ) : (
-    <X className="mx-auto h-5 w-5 text-muted/60" aria-label="Not included" />
+    <X className="mx-auto h-5 w-5 text-neutral-600" aria-label="Not included" />
   );
 }
 
@@ -70,13 +70,14 @@ export function PricingSection({
   const [cycle, setCycle] = React.useState<BillingCycle>("annually");
 
   return (
-    <div className="mx-auto w-full max-w-content px-4 py-14 sm:px-6 md:py-20">
+    <div className="mx-auto w-full max-w-content px-4 py-14 text-white selection:bg-white selection:text-black sm:px-6 md:py-20">
       {/* Header */}
       <header className="mb-10 text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Pricing that keeps up with your search.
+          Pricing that keeps up{" "}
+          <span className="text-neutral-500">with your search.</span>
         </h1>
-        <p className="mx-auto mt-3 max-w-2xl text-lg text-muted">
+        <p className="mx-auto mt-3 max-w-2xl text-lg text-neutral-400">
           Start free. Upgrade when speed matters — the faster we poll, the sooner
           you apply.
         </p>
@@ -91,22 +92,22 @@ export function PricingSection({
             if (v === "monthly" || v === "annually") setCycle(v);
           }}
           aria-label="Select billing cycle"
-          className="rounded-lg border border-border/10 bg-surface-2/60 p-1"
+          className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-1"
         >
           <ToggleGroupItem
             value="monthly"
             aria-label="Monthly billing"
-            className="h-9 rounded-md px-6 text-sm font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm"
+            className="h-9 rounded-md px-6 text-sm font-medium text-neutral-400 hover:bg-white/[0.05] hover:text-white data-[state=on]:bg-white data-[state=on]:text-black data-[state=on]:shadow-sm"
           >
             Monthly
           </ToggleGroupItem>
           <ToggleGroupItem
             value="annually"
             aria-label="Annual billing"
-            className="relative h-9 rounded-md px-6 text-sm font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm"
+            className="relative h-9 rounded-md px-6 text-sm font-medium text-neutral-400 hover:bg-white/[0.05] hover:text-white data-[state=on]:bg-white data-[state=on]:text-black data-[state=on]:shadow-sm"
           >
             Annually
-            <span className="absolute -right-2 -top-3 whitespace-nowrap rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-semibold text-accent-bright">
+            <span className="absolute -right-3 -top-3 z-10 whitespace-nowrap rounded-full bg-neutral-900 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-white ring-1 ring-white/20">
               Save {annualDiscountPercent}%
             </span>
           </ToggleGroupItem>
@@ -126,40 +127,51 @@ export function PricingSection({
             <Card
               key={plan.id}
               className={cn(
-                "flex flex-col transition-shadow duration-300 hover:shadow-card",
-                isFeatured &&
-                  "relative shadow-glow ring-2 ring-primary md:scale-[1.02]",
+                "flex flex-col transition-colors duration-300",
+                isFeatured
+                  ? "relative overflow-hidden border-white/[0.25] bg-black shadow-2xl md:scale-[1.02]"
+                  : "border-white/[0.08] bg-[#050505] hover:border-white/[0.15]",
               )}
             >
+              {isFeatured && (
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-0 top-0 h-px w-full bg-white"
+                />
+              )}
               <CardHeader className="p-6 pb-4">
                 <div className="flex items-start justify-between gap-3">
-                  <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
+                  <CardTitle className="text-2xl font-semibold text-white">
+                    {plan.name}
+                  </CardTitle>
                   {isFeatured && (
-                    <span className="shrink-0 rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground">
+                    <span className="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-black">
                       Most popular
                     </span>
                   )}
                 </div>
-                <CardDescription className="mt-1 text-sm text-muted">
+                <CardDescription className="mt-1 text-sm text-neutral-400">
                   {plan.description}
                 </CardDescription>
                 <div className="mt-4">
                   <p className="flex items-baseline gap-1">
-                    <span className="text-4xl font-extrabold tracking-tight tabular">
+                    <span className="text-4xl font-medium tracking-tighter tabular">
                       ${price}
                     </span>
-                    <span className="text-base font-normal text-muted">{suffix}</span>
+                    <span className="text-base font-normal text-neutral-500">
+                      {suffix}
+                    </span>
                   </p>
                   {!isFree && cycle === "annually" && (
-                    <p className="mt-1 text-xs text-muted">
+                    <p className="mt-1 text-xs text-neutral-500">
                       Billed annually ·{" "}
-                      <span className="text-muted/70 line-through tabular">
+                      <span className="text-neutral-600 line-through tabular">
                         ${strokePrice}/yr
                       </span>
                     </p>
                   )}
                   {!isFree && cycle === "monthly" && (
-                    <p className="mt-1 text-xs text-muted">
+                    <p className="mt-1 text-xs text-neutral-500">
                       or ${plan.priceAnnually}/yr — two months free
                     </p>
                   )}
@@ -167,14 +179,19 @@ export function PricingSection({
               </CardHeader>
 
               <CardContent className="flex-grow p-6 pt-0">
-                <h4 className="mb-2 mt-2 text-sm font-semibold text-fg/80">
+                <h4 className="mb-2 mt-2 text-sm font-medium text-neutral-300">
                   Includes:
                 </h4>
                 <ul className="space-y-2.5">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2.5 py-0.5">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-bright" />
-                      <span className="text-sm text-fg/90">{feature}</span>
+                      <Check
+                        className={cn(
+                          "mt-0.5 h-4 w-4 shrink-0",
+                          isFeatured ? "text-white" : "text-neutral-500",
+                        )}
+                      />
+                      <span className="text-sm text-neutral-300">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -184,8 +201,12 @@ export function PricingSection({
                 <Button
                   asChild
                   size="lg"
-                  variant={isFeatured ? "default" : "outline"}
-                  className={cn("w-full gap-2", !isFeatured && "hover:bg-surface-2")}
+                  className={cn(
+                    "w-full gap-2",
+                    isFeatured
+                      ? "bg-white text-black hover:bg-neutral-200"
+                      : "border border-white/[0.12] bg-transparent text-white hover:bg-white/[0.05]",
+                  )}
                 >
                   <Link href={plan.href}>
                     {plan.buttonLabel}
@@ -200,16 +221,16 @@ export function PricingSection({
 
       {/* Feature comparison */}
       <section aria-label="Feature comparison" className="mt-16">
-        <h2 className="mb-6 text-center text-2xl font-bold tracking-tight">
+        <h2 className="mb-6 text-center text-2xl font-semibold tracking-tight text-white">
           Compare every feature
         </h2>
-        <div className="overflow-x-auto rounded-xl border border-border/10">
-          <table className="min-w-full divide-y divide-border/10">
+        <div className="overflow-x-auto rounded-xl border border-white/[0.08]">
+          <table className="min-w-full divide-y divide-white/[0.08]">
             <thead>
-              <tr className="bg-surface-2/40">
+              <tr className="bg-white/[0.03]">
                 <th
                   scope="col"
-                  className="w-[220px] whitespace-nowrap px-6 py-4 text-left text-sm font-semibold text-fg/80"
+                  className="w-[220px] whitespace-nowrap px-6 py-4 text-left text-sm font-semibold text-neutral-400"
                 >
                   Feature
                 </th>
@@ -218,8 +239,10 @@ export function PricingSection({
                     key={plan.id}
                     scope="col"
                     className={cn(
-                      "whitespace-nowrap px-6 py-4 text-center text-sm font-semibold text-fg/80",
-                      plan.isPopular && "bg-primary/10 text-primary-bright",
+                      "whitespace-nowrap px-6 py-4 text-center text-sm font-semibold",
+                      plan.isPopular
+                        ? "bg-white/[0.06] text-white"
+                        : "text-neutral-300",
                     )}
                   >
                     {plan.name}
@@ -227,13 +250,10 @@ export function PricingSection({
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/[0.06]">
+            <tbody className="divide-y divide-white/[0.06]">
               {comparison.map((row, i) => (
-                <tr
-                  key={row.label}
-                  className={cn(i % 2 === 1 && "bg-surface-2/20")}
-                >
-                  <td className="whitespace-nowrap px-6 py-3 text-left text-sm font-medium text-fg/90">
+                <tr key={row.label} className={cn(i % 2 === 1 && "bg-white/[0.02]")}>
+                  <td className="whitespace-nowrap px-6 py-3 text-left text-sm font-medium text-neutral-200">
                     {row.label}
                   </td>
                   {plans.map((plan) => (
@@ -241,7 +261,7 @@ export function PricingSection({
                       key={plan.id}
                       className={cn(
                         "px-6 py-3 text-center",
-                        plan.isPopular && "bg-primary/[0.06]",
+                        plan.isPopular && "bg-white/[0.04]",
                       )}
                     >
                       <Cell value={row.values[plan.id]} />
@@ -255,8 +275,8 @@ export function PricingSection({
       </section>
 
       {/* Usage note */}
-      <p className="mt-10 flex items-center justify-center gap-2 text-center text-sm text-muted">
-        <span className="h-2 w-2 rounded-full bg-accent/70" />
+      <p className="mt-10 flex items-center justify-center gap-2 text-center text-sm text-neutral-500">
+        <span className="h-2 w-2 rounded-full bg-neutral-700" />
         Every plan polls public ATS endpoints only — no scraping, no bots, cancel
         anytime.
       </p>

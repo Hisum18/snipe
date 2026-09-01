@@ -129,34 +129,34 @@ export default async function PricingPage({
   }));
 
   return (
-    <>
+    <div className="min-h-dvh bg-black text-white selection:bg-white selection:text-black">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border/10 bg-bg/70 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-black/70 backdrop-blur-md">
         <div className="mx-auto flex h-[--header-h] max-w-content items-center justify-between px-6">
           <Link
             href="/"
-            className="flex items-center gap-2 text-lg font-bold tracking-tight"
+            className="flex items-center gap-2 text-lg font-bold tracking-tight text-white"
           >
-            <Target className="h-5 w-5 text-primary-bright" />
+            <Target className="h-5 w-5 text-white" />
             Snipe
           </Link>
           <nav className="flex items-center gap-1 text-sm">
             <Link
               href="/#how"
-              className="rounded-lg px-3 py-2 text-muted transition-colors hover:text-fg"
+              className="rounded-lg px-3 py-2 text-neutral-400 transition-colors hover:text-white"
             >
               How it works
             </Link>
             <span
               aria-current="page"
-              className="rounded-lg px-3 py-2 font-medium text-fg"
+              className="rounded-lg px-3 py-2 font-medium text-white"
             >
               Pricing
             </span>
             {user ? (
               <Link
                 href="/dashboard"
-                className="ml-1 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 font-semibold text-white transition-colors hover:bg-primary-bright"
+                className="ml-1 inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 font-semibold text-black transition-colors hover:bg-neutral-200"
               >
                 Dashboard <ArrowRight className="h-4 w-4" />
               </Link>
@@ -164,13 +164,13 @@ export default async function PricingPage({
               <>
                 <Link
                   href="/login"
-                  className="rounded-lg px-3 py-2 text-muted transition-colors hover:text-fg"
+                  className="rounded-lg px-3 py-2 text-neutral-400 transition-colors hover:text-white"
                 >
                   Sign in
                 </Link>
                 <Link
                   href="/login"
-                  className="ml-1 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 font-semibold text-white transition-colors hover:bg-primary-bright"
+                  className="ml-1 inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 font-semibold text-black transition-colors hover:bg-neutral-200"
                 >
                   Get alerts <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -184,10 +184,10 @@ export default async function PricingPage({
         {welcome && (
           <div
             role="status"
-            className="mx-auto mt-6 flex max-w-2xl items-start gap-3 rounded-xl border border-accent/30 bg-accent/10 p-4 text-sm"
+            className="mx-auto mt-6 flex max-w-2xl items-start gap-3 rounded-xl border border-white/[0.12] bg-white/[0.03] p-4 text-sm"
           >
-            <Check className="mt-0.5 h-5 w-5 shrink-0 text-accent-bright" />
-            <span className="text-fg/90">
+            <Check className="mt-0.5 h-5 w-5 shrink-0 text-white" />
+            <span className="text-neutral-300">
               Check your inbox for your one-time sign-in link — it expires in 15
               minutes. Meanwhile, here&apos;s every plan.
             </span>
@@ -201,15 +201,15 @@ export default async function PricingPage({
         />
 
         {/* Footer */}
-        <footer className="border-t border-border/10 py-10 text-sm text-muted">
+        <footer className="border-t border-white/[0.08] py-10 text-sm text-neutral-500">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <span className="flex items-center gap-2">
-              <Target className="h-4 w-4 text-primary-bright" />© {new Date().getFullYear()} Snipe
+              <Target className="h-4 w-4 text-neutral-400" />© {new Date().getFullYear()} Snipe
             </span>
             <span>Polls public ATS endpoints. Not affiliated with any employer.</span>
           </div>
         </footer>
       </main>
-    </>
+    </div>
   );
 }
