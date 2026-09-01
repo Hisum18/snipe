@@ -1,21 +1,41 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
-const LINKS = ["Home", "Pricing", "Features", "Docs", "Blog"] as const;
+const ITEMS = [
+  { label: "Home", href: "/" },
+  { label: "How it works", href: "/#how" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Sign in", href: "/login" },
+] as const;
+
+/** Which tab the current route maps to (anchors on "/" stay Home). */
+function activeFromPath(pathname: string): number {
+  if (pathname.startsWith("/pricing")) return 2;
+  if (pathname.startsWith("/login")) return 3;
+  return 0;
+}
 
 /**
- * Pill navbar: a dark rounded bar ringed in white, with a white "active" pill
- * that slides between items. CSS-only motion (no animation dependency) — the
- * indicator is positioned from each item's measured offset so widths can vary.
+ * Pill navbar: a dark rounded bar ringed in white with a white "active" pill
+ * that slides between the real site tabs. CSS-only motion (no animation
+ * dependency) — the indicator is positioned from each item's measured offset.
  */
 export function Navbar() {
-  const [active, setActive] = useState(0);
+  const pathname = usePathname();
+  const [active, setActive] = useState(() => activeFromPath(pathname));
   const [ready, setReady] = useState(false);
-  const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const itemRefs = useRef<Array<HTMLAnchorElement | null>>([]);
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
+
+  // Follow route changes (e.g. navigating to /pricing highlights Pricing).
+  useEffect(() => {
+    setActive(activeFromPath(pathname));
+  }, [pathname]);
 
   useEffect(() => {
     function update() {
@@ -46,22 +66,22 @@ export function Navbar() {
             : "opacity-0",
         )}
       />
-      {LINKS.map((link, i) => (
-        <button
-          key={link}
-          type="button"
+      {ITEMS.map((item, i) => (
+        <Link
+          key={item.href}
+          href={item.href}
           ref={(el) => {
             itemRefs.current[i] = el;
           }}
           onClick={() => setActive(i)}
           aria-current={active === i ? "page" : undefined}
           className={cn(
-            "relative z-10 rounded-full px-6 py-3 text-sm font-semibold uppercase tracking-[0.12em] transition-colors duration-300",
+            "relative z-10 whitespace-nowrap rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.1em] transition-colors duration-300",
             active === i ? "text-black" : "text-neutral-400 hover:text-white",
           )}
         >
-          {link}
-        </button>
+          {item.label}
+        </Link>
       ))}
     </nav>
   );
