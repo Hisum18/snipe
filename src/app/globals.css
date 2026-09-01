@@ -2,15 +2,129 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------------------------------------------------------------------------
+ * Design tokens (dark-first). Values are space-separated RGB channels so
+ * Tailwind can apply opacity modifiers via rgb(var(--x) / <alpha-value>).
+ * Palette: Indigo primary + Emerald "live" accent (ui-ux-pro-max recommendation),
+ * mapped onto Snipe's dark, speed-oriented identity.
+ * ------------------------------------------------------------------------- */
 :root {
   color-scheme: dark;
+
+  --bg: 7 10 18; /* #070A12 deep background */
+  --surface: 17 22 36; /* #111624 card */
+  --surface-2: 25 31 49; /* #191F31 elevated */
+  --fg: 231 235 245; /* primary text */
+  --muted: 156 165 186; /* secondary text (>= 4.5:1 on --bg) */
+  --border: 255 255 255; /* used at low alpha */
+
+  --primary: 99 102 241; /* indigo #6366F1 */
+  --primary-bright: 129 140 248; /* #818CF8 */
+  --accent: 16 185 129; /* emerald #10B981 (live / new job) */
+  --accent-bright: 52 211 153; /* #34D399 */
+  --warning: 245 158 11; /* amber #F59E0B */
+  --destructive: 244 63 94; /* rose #F43B5E */
+
+  --ring: 129 140 248; /* focus ring — bright indigo for dark bg */
+
+  --header-h: 68px;
 }
 
-html {
-  scroll-behavior: smooth;
+@layer base {
+  * {
+    border-color: rgb(var(--border) / 0.08);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Keep focused controls clear of the sticky header (WCAG 2.2 focus-not-obscured). */
+    scroll-padding-top: calc(var(--header-h) + 12px);
+  }
+
+  body {
+    background: radial-gradient(
+        1100px 560px at 50% -12%,
+        rgb(var(--primary) / 0.14) 0%,
+        transparent 60%
+      ),
+      rgb(var(--bg));
+    color: rgb(var(--fg));
+    min-height: 100dvh;
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Single, consistent visible focus ring for keyboard users everywhere. */
+  :focus-visible {
+    outline: 2px solid rgb(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  ::selection {
+    background: rgb(var(--primary) / 0.35);
+    color: rgb(var(--fg));
+  }
+
+  /* Clickable affordance on all enabled buttons. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="switch"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* Tabular numbers for stats, prices, counts. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
 }
 
-body {
-  background: radial-gradient(1200px 600px at 50% -10%, #1a2340 0%, #0b0f19 55%);
-  min-height: 100vh;
+@layer utilities {
+  /* Entrance motion — CSS only, disabled under reduced-motion. */
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .animate-fade-up {
+    animation: fade-up 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.45;
+      transform: scale(0.82);
+    }
+  }
+  .live-dot {
+    animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

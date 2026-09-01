@@ -57,7 +57,7 @@ export function SettingsSection({
       <div className="flex items-center justify-between gap-4">
         <div>
           <div className="text-sm font-medium">Email alerts</div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-muted">
             Job matches are emailed to you.
           </div>
         </div>
@@ -73,7 +73,7 @@ export function SettingsSection({
             if (!ok) setEmailOn(!next); // revert on failure
           }}
           className={`relative h-6 w-11 rounded-full transition ${
-            emailOn ? "bg-accent" : "bg-white/15"
+            emailOn ? "bg-primary" : "bg-fg/15"
           }`}
         >
           <span
@@ -89,12 +89,12 @@ export function SettingsSection({
         <div className="mb-1 flex items-center gap-2">
           <span className="text-sm font-medium">Discord webhook</span>
           {!canUseDiscord && (
-            <span className="rounded bg-white/5 px-1.5 py-0.5 text-[11px] text-slate-400">
+            <span className="rounded bg-fg/[0.06] px-1.5 py-0.5 text-[11px] text-muted">
               Pro &amp; Max
             </span>
           )}
         </div>
-        <p className="mb-2 text-xs text-slate-500">
+        <p className="mb-2 text-xs text-muted">
           Paste a Discord channel webhook URL to also receive alerts there.
         </p>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -104,19 +104,19 @@ export function SettingsSection({
             onChange={(e) => setWebhook(e.target.value)}
             placeholder="https://discord.com/api/webhooks/…"
             disabled={busy || !canUseDiscord}
-            className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent disabled:opacity-50"
+            className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary disabled:opacity-50"
           />
           <button
             type="button"
             disabled={busy || !canUseDiscord}
             onClick={() => patch({ discordWebhookUrl: webhook.trim() || null })}
-            className="shrink-0 rounded-lg border border-white/15 px-4 py-2 text-sm hover:bg-white/5 disabled:opacity-50"
+            className="shrink-0 rounded-lg border border-border/15 px-4 py-2 text-sm hover:bg-surface-2 disabled:opacity-50"
           >
             Save
           </button>
         </div>
         {!isMax && canUseDiscord && (
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-muted">
             SMS alerts are available on Max.
           </p>
         )}
@@ -215,12 +215,12 @@ function PhoneVerify({
 
       {phoneVerified ? (
         <div className="flex items-center justify-between gap-3">
-          <span className="text-sm text-slate-300">{phoneE164}</span>
+          <span className="text-sm text-fg/90">{phoneE164}</span>
           <button
             type="button"
             onClick={removePhone}
             disabled={busy}
-            className="rounded-lg border border-white/15 px-3 py-1.5 text-sm hover:bg-white/5 disabled:opacity-50"
+            className="rounded-lg border border-border/15 px-3 py-1.5 text-sm hover:bg-surface-2 disabled:opacity-50"
           >
             Remove
           </button>
@@ -234,14 +234,14 @@ function PhoneVerify({
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+14155551234"
               disabled={busy || stage === "code"}
-              className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent disabled:opacity-50"
+              className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary disabled:opacity-50"
             />
             {stage === "idle" && (
               <button
                 type="button"
                 onClick={sendCode}
                 disabled={busy}
-                className="shrink-0 rounded-lg border border-white/15 px-4 py-2 text-sm hover:bg-white/5 disabled:opacity-50"
+                className="shrink-0 rounded-lg border border-border/15 px-4 py-2 text-sm hover:bg-surface-2 disabled:opacity-50"
               >
                 Send code
               </button>
@@ -255,13 +255,13 @@ function PhoneVerify({
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="6-digit code"
                 disabled={busy}
-                className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent"
+                className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
               />
               <button
                 type="button"
                 onClick={verify}
                 disabled={busy}
-                className="shrink-0 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-bright disabled:opacity-60"
+                className="shrink-0 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-bright disabled:opacity-60"
               >
                 Verify
               </button>
@@ -303,7 +303,7 @@ export function DangerZone() {
   return (
     <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-6">
       <h2 className="text-lg font-semibold text-rose-200">Delete account</h2>
-      <p className="mt-1 text-sm text-slate-400">
+      <p className="mt-1 text-sm text-muted">
         Permanently deletes your account, watched companies, profiles, and alert
         history. This cannot be undone.
       </p>
@@ -329,7 +329,7 @@ export function DangerZone() {
             type="button"
             onClick={() => setConfirming(false)}
             disabled={busy}
-            className="rounded-lg border border-white/15 px-4 py-2 text-sm hover:bg-white/5"
+            className="rounded-lg border border-border/15 px-4 py-2 text-sm hover:bg-surface-2"
           >
             Cancel
           </button>
