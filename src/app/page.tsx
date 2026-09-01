@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ShaderBg } from "@/components/hero/shader-bg";
 import { SignupForm } from "@/components/signup-form";
 import {
   ArrowRight,
@@ -38,9 +39,14 @@ const STATS = [
 export default function LandingPage() {
   return (
     <div className="min-h-dvh bg-black text-white selection:bg-white selection:text-black">
-      <main className="mx-auto max-w-content px-6">
-        {/* Hero */}
-        <section className="grid items-center gap-12 py-16 md:grid-cols-2 md:py-24">
+      {/* Hero — full-bleed animated shader background */}
+      <section className="relative isolate overflow-hidden">
+        <ShaderBg />
+        <div
+          className="pointer-events-none absolute inset-0 bg-black/40"
+          aria-hidden="true"
+        />
+        <div className="relative z-10 mx-auto grid max-w-content items-center gap-12 px-6 py-20 md:grid-cols-2 md:py-28">
           <div className="animate-fade-up">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.03] px-3 py-1 text-xs text-neutral-400">
               <span className="relative flex h-2 w-2">
@@ -106,8 +112,10 @@ export default function LandingPage() {
               ))}
             </ul>
           </div>
-        </section>
+        </div>
+      </section>
 
+      <main className="mx-auto max-w-content px-6">
         {/* Trust / stats strip */}
         <section className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.08] md:grid-cols-4">
           {STATS.map((s) => (
