@@ -1,5 +1,4 @@
 import { and, count, desc, eq } from "drizzle-orm";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { db } from "@/db";
@@ -14,7 +13,6 @@ import {
   BellRing,
   Building,
   Download,
-  LogOut,
   Search,
   Target,
 } from "@/components/icons";
@@ -105,27 +103,6 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-border/10 bg-bg/70 backdrop-blur-md">
-        <div className="mx-auto flex h-[--header-h] max-w-6xl items-center justify-between px-6">
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight">
-            <Target className="h-5 w-5 text-primary-bright" />
-            Snipe
-          </Link>
-          <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-muted sm:inline">{user.email}</span>
-            <form action="/api/auth/logout" method="post">
-              <button
-                type="submit"
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border/15 px-3 py-1.5 text-sm text-muted transition-colors hover:bg-surface-2 hover:text-fg"
-              >
-                <LogOut className="h-4 w-4" />
-                Sign out
-              </button>
-            </form>
-          </div>
-        </div>
-      </header>
-
       <main className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>

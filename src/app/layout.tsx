@@ -3,6 +3,9 @@ import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 
 import "./globals.css";
 
+import { Navbar } from "@/components/navbar/navbar";
+import { getCurrentUser } from "@/lib/auth/session";
+
 // Self-hosted by next/font (no external stylesheet), so CSP stays font-src 'self'.
 const sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -22,14 +25,16 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getCurrentUser();
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body className="min-h-dvh bg-bg font-sans text-fg antialiased">
+        <Navbar authed={!!user} email={user?.email ?? undefined} />
         {children}
       </body>
     </html>

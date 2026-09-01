@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-
-import { ArrowRight, Check, Target } from "@/components/icons";
+import { Check, Target } from "@/components/icons";
 import {
   PricingSection,
   type ComparisonRow,
@@ -130,56 +128,6 @@ export default async function PricingPage({
 
   return (
     <div className="min-h-dvh bg-black text-white selection:bg-white selection:text-black">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-black/70 backdrop-blur-md">
-        <div className="mx-auto flex h-[--header-h] max-w-content items-center justify-between px-6">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-lg font-bold tracking-tight text-white"
-          >
-            <Target className="h-5 w-5 text-white" />
-            Snipe
-          </Link>
-          <nav className="flex items-center gap-1 text-sm">
-            <Link
-              href="/#how"
-              className="rounded-lg px-3 py-2 text-neutral-400 transition-colors hover:text-white"
-            >
-              How it works
-            </Link>
-            <span
-              aria-current="page"
-              className="rounded-lg px-3 py-2 font-medium text-white"
-            >
-              Pricing
-            </span>
-            {user ? (
-              <Link
-                href="/dashboard"
-                className="ml-1 inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 font-semibold text-black transition-colors hover:bg-neutral-200"
-              >
-                Dashboard <ArrowRight className="h-4 w-4" />
-              </Link>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="rounded-lg px-3 py-2 text-neutral-400 transition-colors hover:text-white"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href="/login"
-                  className="ml-1 inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 font-semibold text-black transition-colors hover:bg-neutral-200"
-                >
-                  Get alerts <ArrowRight className="h-4 w-4" />
-                </Link>
-              </>
-            )}
-          </nav>
-        </div>
-      </header>
-
       <main className="mx-auto max-w-content px-6">
         {welcome && (
           <div

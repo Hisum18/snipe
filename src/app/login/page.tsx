@@ -1,8 +1,6 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { SignupForm } from "@/components/signup-form";
-import { Target } from "@/components/icons";
 import { getCurrentUser } from "@/lib/auth/session";
 
 const ERRORS: Record<string, string> = {
@@ -24,10 +22,6 @@ export default async function LoginPage({
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 py-12">
-      <Link href="/" className="mb-8 inline-flex items-center gap-2 text-lg font-bold tracking-tight">
-        <Target className="h-5 w-5 text-primary-bright" />
-        Snipe
-      </Link>
       <div className="rounded-2xl border border-border/10 bg-surface p-7 shadow-card">
         <h1 className="text-2xl font-bold tracking-tight">Sign in or create an account</h1>
         <p className="mt-2 text-sm text-muted">
