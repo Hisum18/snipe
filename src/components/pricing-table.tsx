@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Check } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 export interface PricingTier {
@@ -19,59 +20,53 @@ export function PricingTable({ tiers }: { tiers: PricingTier[] }) {
 
   return (
     <div>
-      <div className="mb-8 flex items-center justify-center gap-3">
+      <div className="mb-8 flex justify-center">
         <IntervalToggle interval={interval} onChange={setInterval} />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-3">
         {tiers.map((t) => {
           const price = interval === "monthly" ? t.priceMonthly : t.priceAnnual;
           return (
             <div
               key={t.tier}
               className={cn(
-                "flex flex-col rounded-2xl border p-6",
+                "relative flex flex-col rounded-2xl border p-6 transition-colors",
                 t.highlighted
-                  ? "border-accent/60 bg-accent/5 shadow-[0_0_0_1px_rgba(91,140,255,0.3)]"
-                  : "border-white/10 bg-ink-soft",
+                  ? "border-primary/50 bg-surface shadow-glow"
+                  : "border-border/10 bg-surface hover:border-border/20",
               )}
             >
-              <div className="mb-1 flex items-center justify-between">
-                <h3 className="text-lg font-semibold">{t.label}</h3>
-                {t.highlighted && (
-                  <span className="rounded-full bg-accent/20 px-2.5 py-0.5 text-xs font-medium text-accent-bright">
-                    Most popular
-                  </span>
-                )}
-              </div>
-              <p className="mb-4 text-sm text-slate-400">{t.tagline}</p>
-              <div className="mb-6 flex items-baseline gap-1">
-                <span className="text-4xl font-bold tracking-tight">
+              {t.highlighted && (
+                <span className="absolute -top-3 left-6 rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-white">
+                  Most popular
+                </span>
+              )}
+              <h3 className="text-lg font-semibold">{t.label}</h3>
+              <p className="mt-1 text-sm text-muted">{t.tagline}</p>
+              <div className="mb-6 mt-5 flex items-baseline gap-1">
+                <span className="text-4xl font-bold tracking-tight tabular">
                   ${price}
                 </span>
-                <span className="text-sm text-slate-400">
-                  {t.tier === "free"
-                    ? ""
-                    : interval === "monthly"
-                      ? "/mo"
-                      : "/yr"}
+                <span className="text-sm text-muted">
+                  {t.tier === "free" ? "" : interval === "monthly" ? "/mo" : "/yr"}
                 </span>
               </div>
               <ul className="mb-6 flex-1 space-y-2.5 text-sm">
                 {t.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-slate-300">
-                    <Check />
-                    <span>{f}</span>
+                  <li key={f} className="flex items-start gap-2.5 text-muted">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-bright" />
+                    <span className="text-fg/90">{f}</span>
                   </li>
                 ))}
               </ul>
               <a
                 href="#get-started"
                 className={cn(
-                  "rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition",
+                  "rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition-colors",
                   t.highlighted
-                    ? "bg-accent text-white hover:bg-accent-bright"
-                    : "border border-white/15 text-slate-100 hover:bg-white/5",
+                    ? "bg-primary text-white hover:bg-primary-bright"
+                    : "border border-border/15 text-fg hover:bg-surface-2",
                 )}
               >
                 {t.tier === "free" ? "Start free" : `Choose ${t.label}`}
@@ -81,7 +76,7 @@ export function PricingTable({ tiers }: { tiers: PricingTier[] }) {
         })}
       </div>
       {interval === "annual" && (
-        <p className="mt-4 text-center text-xs text-slate-500">
+        <p className="mt-4 text-center text-xs text-muted">
           Annual billing is 10× the monthly price — two months free.
         </p>
       )}
@@ -97,39 +92,32 @@ function IntervalToggle({
   onChange: (i: "monthly" | "annual") => void;
 }) {
   return (
-    <div className="inline-flex rounded-full border border-white/10 bg-ink-soft p-1 text-sm">
+    <div
+      role="group"
+      aria-label="Billing interval"
+      className="inline-flex rounded-full border border-border/10 bg-surface p-1 text-sm"
+    >
       {(["monthly", "annual"] as const).map((i) => (
         <button
           key={i}
           type="button"
+          aria-pressed={interval === i}
           onClick={() => onChange(i)}
           className={cn(
-            "rounded-full px-4 py-1.5 font-medium transition",
+            "cursor-pointer rounded-full px-4 py-1.5 font-medium transition-colors",
             interval === i
-              ? "bg-accent text-white"
-              : "text-slate-400 hover:text-slate-200",
+              ? "bg-primary text-white"
+              : "text-muted hover:text-fg",
           )}
         >
           {i === "monthly" ? "Monthly" : "Annual"}
+          {i === "annual" && (
+            <span className="ml-1.5 rounded bg-accent/15 px-1.5 py-0.5 text-[11px] text-accent-bright">
+              -17%
+            </span>
+          )}
         </button>
       ))}
     </div>
-  );
-}
-
-function Check() {
-  return (
-    <svg
-      className="mt-0.5 h-4 w-4 shrink-0 text-accent-bright"
-      viewBox="0 0 20 20"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        fillRule="evenodd"
-        d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 1 1 1.4-1.4l3.3 3.29 6.8-6.8a1 1 0 0 1 1.4 0Z"
-        clipRule="evenodd"
-      />
-    </svg>
   );
 }

@@ -47,7 +47,7 @@ export function AddCompany() {
   return (
     <form onSubmit={submit} className="space-y-3">
       <div>
-        <label htmlFor="careers-url" className="mb-1 block text-sm text-slate-300">
+        <label htmlFor="careers-url" className="mb-1 block text-sm text-fg/90">
           Careers URL
         </label>
         <input
@@ -58,9 +58,9 @@ export function AddCompany() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           disabled={busy}
-          className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent"
+          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
         />
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-muted">
           Greenhouse, Lever, or Ashby. We detect the provider automatically.
         </p>
       </div>
@@ -71,7 +71,7 @@ export function AddCompany() {
           value={keywords}
           onChange={(e) => setKeywords(e.target.value)}
           disabled={busy}
-          className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent"
+          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
         />
         <input
           aria-label="Location filter"
@@ -79,14 +79,14 @@ export function AddCompany() {
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           disabled={busy}
-          className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent"
+          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
         />
       </div>
       {error && <p className="text-sm text-rose-300">{error}</p>}
       <button
         type="submit"
         disabled={busy}
-        className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-bright disabled:opacity-60"
+        className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-bright disabled:opacity-60"
       >
         {busy ? "Adding…" : "Watch company"}
       </button>

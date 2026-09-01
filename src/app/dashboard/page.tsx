@@ -1,4 +1,5 @@
 import { and, count, desc, eq } from "drizzle-orm";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { db } from "@/db";
@@ -9,6 +10,14 @@ import { PlanCard } from "@/components/dashboard/plan-card";
 import { ProfilesSection, type ProfileRow } from "@/components/dashboard/profiles-section";
 import { DangerZone, SettingsSection } from "@/components/dashboard/settings-section";
 import { WatchList, type WatchRow } from "@/components/dashboard/watch-list";
+import {
+  BellRing,
+  Building,
+  Download,
+  LogOut,
+  Search,
+  Target,
+} from "@/components/icons";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -95,136 +104,176 @@ export default async function DashboardPage() {
   }));
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
-      <header className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-slate-500">{user.email}</p>
+    <>
+      <header className="sticky top-0 z-40 border-b border-border/10 bg-bg/70 backdrop-blur-md">
+        <div className="mx-auto flex h-[--header-h] max-w-6xl items-center justify-between px-6">
+          <Link href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight">
+            <Target className="h-5 w-5 text-primary-bright" />
+            Snipe
+          </Link>
+          <div className="flex items-center gap-3">
+            <span className="hidden text-sm text-muted sm:inline">{user.email}</span>
+            <form action="/api/auth/logout" method="post">
+              <button
+                type="submit"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border/15 px-3 py-1.5 text-sm text-muted transition-colors hover:bg-surface-2 hover:text-fg"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
-        <form action="/api/auth/logout" method="post">
-          <button
-            type="submit"
-            className="rounded-lg border border-white/15 px-3 py-1.5 text-sm hover:bg-white/5"
-          >
-            Sign out
-          </button>
-        </form>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <section className="rounded-2xl border border-white/10 bg-ink-soft p-6">
-            <h2 className="mb-4 text-lg font-semibold">Watch a company</h2>
-            <AddCompany />
-          </section>
+      <main className="mx-auto max-w-6xl px-6 py-10">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <p className="mt-1 text-sm text-muted">
+            {limits.label} plan · {pollingLabel(limits.pollIntervalSeconds)} polling
+          </p>
+        </div>
 
-          <section className="rounded-2xl border border-white/10 bg-ink-soft p-6">
-            <h2 className="mb-2 text-lg font-semibold">
-              Watched companies{" "}
-              <span className="text-sm font-normal text-slate-500">
-                ({activeWatches}
-                {limits.maxCompanies === null ? "" : ` / ${limits.maxCompanies}`})
-              </span>
-            </h2>
-            <WatchList watches={watchList} />
-          </section>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            <section className="rounded-2xl border border-border/10 bg-surface p-6">
+              <SectionHeading icon={Search} title="Watch a company" />
+              <div className="mt-4">
+                <AddCompany />
+              </div>
+            </section>
 
-          <section className="rounded-2xl border border-white/10 bg-ink-soft p-6">
-            <h2 className="mb-2 text-lg font-semibold">
-              Alert profiles{" "}
-              <span className="text-sm font-normal text-slate-500">
-                ({activeProfiles}
-                {limits.maxProfiles === null ? "" : ` / ${limits.maxProfiles}`})
-              </span>
-            </h2>
-            <p className="mb-4 text-sm text-slate-500">
-              Saved keyword filters for your alerts.
-              {limits.crossCompanySearch
-                ? " Cross-company profiles match every indexed company."
-                : ""}
-            </p>
-            <ProfilesSection
-              profiles={profileList}
-              canUseCrossCompany={limits.crossCompanySearch}
-            />
-          </section>
+            <section className="rounded-2xl border border-border/10 bg-surface p-6">
+              <SectionHeading
+                icon={Building}
+                title="Watched companies"
+                count={`${activeWatches}${limits.maxCompanies === null ? "" : ` / ${limits.maxCompanies}`}`}
+              />
+              <div className="mt-4">
+                <WatchList watches={watchList} />
+              </div>
+            </section>
 
-          <section className="rounded-2xl border border-white/10 bg-ink-soft p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Recent matched jobs</h2>
-              {limits.fullHistoryExport && (
-                <a
-                  href="/api/export/jobs"
-                  className="rounded-lg border border-white/15 px-3 py-1.5 text-xs hover:bg-white/5"
-                >
-                  Export CSV
-                </a>
-              )}
-            </div>
-            {recentJobs.length === 0 ? (
-              <p className="text-sm text-slate-500">
-                Nothing yet. New roles at your watched companies will show up here.
+            <section className="rounded-2xl border border-border/10 bg-surface p-6">
+              <SectionHeading
+                icon={Target}
+                title="Alert profiles"
+                count={`${activeProfiles}${limits.maxProfiles === null ? "" : ` / ${limits.maxProfiles}`}`}
+              />
+              <p className="mb-4 mt-1.5 text-sm text-muted">
+                Saved keyword filters for your alerts.
+                {limits.crossCompanySearch
+                  ? " Cross-company profiles match every indexed company."
+                  : ""}
               </p>
-            ) : (
-              <ul className="space-y-3">
-                {recentJobs.map((j) => (
-                  <li
-                    key={j.jobId}
-                    className="flex items-center justify-between gap-4 rounded-xl border border-white/5 bg-black/20 px-4 py-3"
+              <ProfilesSection
+                profiles={profileList}
+                canUseCrossCompany={limits.crossCompanySearch}
+              />
+            </section>
+
+            <section className="rounded-2xl border border-border/10 bg-surface p-6">
+              <div className="flex items-center justify-between">
+                <SectionHeading icon={BellRing} title="Recent matched jobs" />
+                {limits.fullHistoryExport && (
+                  <a
+                    href="/api/export/jobs"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border/15 px-3 py-1.5 text-xs text-muted transition-colors hover:bg-surface-2 hover:text-fg"
                   >
-                    <div className="min-w-0">
-                      {/* Untrusted ATS text — rendered as escaped JSX text. */}
-                      <a
-                        href={j.url}
-                        target="_blank"
-                        rel="noopener noreferrer nofollow"
-                        className="truncate font-medium text-accent-bright hover:underline"
+                    <Download className="h-3.5 w-3.5" />
+                    Export CSV
+                  </a>
+                )}
+              </div>
+              <div className="mt-4">
+                {recentJobs.length === 0 ? (
+                  <p className="text-sm text-muted">
+                    Nothing yet. New roles at your watched companies will show up here.
+                  </p>
+                ) : (
+                  <ul className="space-y-2.5">
+                    {recentJobs.map((j) => (
+                      <li
+                        key={j.jobId}
+                        className="flex items-center justify-between gap-4 rounded-xl border border-border/[0.06] bg-surface-2/50 px-4 py-3 transition-colors hover:border-border/15"
                       >
-                        {j.title}
-                      </a>
-                      <div className="truncate text-xs text-slate-500">
-                        {j.companyName}
-                        {j.location ? ` · ${j.location}` : ""}
-                      </div>
-                    </div>
-                    <time className="shrink-0 text-xs text-slate-500">
-                      {new Date(j.createdAt).toLocaleDateString()}
-                    </time>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        </div>
+                        <div className="min-w-0">
+                          {/* Untrusted ATS text — rendered as escaped JSX text. */}
+                          <a
+                            href={j.url}
+                            target="_blank"
+                            rel="noopener noreferrer nofollow"
+                            className="truncate font-medium text-primary-bright hover:underline"
+                          >
+                            {j.title}
+                          </a>
+                          <div className="truncate text-xs text-muted">
+                            {j.companyName}
+                            {j.location ? ` · ${j.location}` : ""}
+                          </div>
+                        </div>
+                        <time className="shrink-0 text-xs text-muted tabular">
+                          {new Date(j.createdAt).toLocaleDateString()}
+                        </time>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </section>
+          </div>
 
-        <div className="space-y-6">
-          <PlanCard
-            planLabel={limits.label}
-            isPaid={tier !== "free"}
-            usage={{
-              companies: `${activeWatches}${limits.maxCompanies === null ? "" : ` / ${limits.maxCompanies}`}`,
-              profiles: `${activeProfiles}${limits.maxProfiles === null ? "" : ` / ${limits.maxProfiles}`}`,
-              polling: pollingLabel(limits.pollIntervalSeconds),
-            }}
-          />
-
-          <section className="rounded-2xl border border-white/10 bg-ink-soft p-6">
-            <h2 className="mb-4 text-lg font-semibold">Notifications</h2>
-            <SettingsSection
-              discordWebhookUrl={user.discordWebhookUrl}
-              emailNotificationsEnabled={user.emailNotificationsEnabled}
-              canUseDiscord={limits.channels.includes("discord")}
-              isMax={tier === "max"}
-              phoneE164={user.phoneE164}
-              phoneVerified={user.phoneVerifiedAt !== null}
+          <div className="space-y-6">
+            <PlanCard
+              planLabel={limits.label}
+              isPaid={tier !== "free"}
+              usage={{
+                companies: `${activeWatches}${limits.maxCompanies === null ? "" : ` / ${limits.maxCompanies}`}`,
+                profiles: `${activeProfiles}${limits.maxProfiles === null ? "" : ` / ${limits.maxProfiles}`}`,
+                polling: pollingLabel(limits.pollIntervalSeconds),
+              }}
             />
-          </section>
-        </div>
-      </div>
 
-      <div className="mt-6">
-        <DangerZone />
-      </div>
-    </main>
+            <section className="rounded-2xl border border-border/10 bg-surface p-6">
+              <SectionHeading icon={BellRing} title="Notifications" />
+              <div className="mt-4">
+                <SettingsSection
+                  discordWebhookUrl={user.discordWebhookUrl}
+                  emailNotificationsEnabled={user.emailNotificationsEnabled}
+                  canUseDiscord={limits.channels.includes("discord")}
+                  isMax={tier === "max"}
+                  phoneE164={user.phoneE164}
+                  phoneVerified={user.phoneVerifiedAt !== null}
+                />
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <DangerZone />
+        </div>
+      </main>
+    </>
+  );
+}
+
+function SectionHeading({
+  icon: Icon,
+  title,
+  count,
+}: {
+  icon: (p: { className?: string }) => React.ReactElement;
+  title: string;
+  count?: string;
+}) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/12 text-primary-bright ring-1 ring-inset ring-primary/20">
+        <Icon className="h-4 w-4" />
+      </span>
+      <h2 className="text-lg font-semibold">{title}</h2>
+      {count && <span className="text-sm text-muted tabular">({count})</span>}
+    </div>
   );
 }

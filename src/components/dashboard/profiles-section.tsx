@@ -78,11 +78,11 @@ export function ProfilesSection({
   return (
     <div className="space-y-5">
       {profiles.length === 0 ? (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted">
           No profiles yet. A profile is a saved keyword/location filter for your alerts.
         </p>
       ) : (
-        <ul className="divide-y divide-white/5">
+        <ul className="divide-y divide-border/[0.06]">
           {profiles.map((p) =>
             editing === p.id ? (
               <li key={p.id} className="py-3">
@@ -103,7 +103,7 @@ export function ProfilesSection({
                     {/* User-supplied text rendered as escaped JSX text. */}
                     <span className="truncate font-medium">{p.name}</span>
                     {p.crossCompany && (
-                      <span className="rounded bg-accent/20 px-1.5 py-0.5 text-[11px] text-accent-bright">
+                      <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[11px] text-primary-bright">
                         cross-company
                       </span>
                     )}
@@ -113,7 +113,7 @@ export function ProfilesSection({
                       </span>
                     )}
                   </div>
-                  <div className="mt-0.5 truncate text-xs text-slate-500">
+                  <div className="mt-0.5 truncate text-xs text-muted">
                     {p.keywordFilters.length > 0 ? p.keywordFilters.join(", ") : "all keywords"}
                     {p.locationFilter ? ` · ${p.locationFilter}` : ""}
                   </div>
@@ -122,7 +122,7 @@ export function ProfilesSection({
                   <button
                     type="button"
                     onClick={() => setEditing(p.id)}
-                    className="rounded-lg border border-white/10 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/5"
+                    className="rounded-lg border border-border/10 px-2.5 py-1 text-xs text-fg/90 hover:bg-surface-2"
                   >
                     Edit
                   </button>
@@ -130,7 +130,7 @@ export function ProfilesSection({
                     type="button"
                     onClick={() => remove(p.id)}
                     disabled={removing === p.id}
-                    className="rounded-lg border border-white/10 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/5 disabled:opacity-50"
+                    className="rounded-lg border border-border/10 px-2.5 py-1 text-xs text-fg/90 hover:bg-surface-2 disabled:opacity-50"
                   >
                     {removing === p.id ? "Removing…" : "Remove"}
                   </button>
@@ -141,7 +141,7 @@ export function ProfilesSection({
         </ul>
       )}
 
-      <form onSubmit={add} className="space-y-3 border-t border-white/10 pt-5">
+      <form onSubmit={add} className="space-y-3 border-t border-border/10 pt-5">
         <input
           aria-label="Profile name"
           required
@@ -149,7 +149,7 @@ export function ProfilesSection({
           value={name}
           onChange={(e) => setName(e.target.value)}
           disabled={busy}
-          className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent"
+          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
         />
         <div className="grid gap-3 sm:grid-cols-2">
           <input
@@ -158,7 +158,7 @@ export function ProfilesSection({
             value={keywords}
             onChange={(e) => setKeywords(e.target.value)}
             disabled={busy}
-            className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent"
+            className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
           />
           <input
             aria-label="Location filter"
@@ -166,13 +166,13 @@ export function ProfilesSection({
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             disabled={busy}
-            className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent"
+            className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
           />
         </div>
 
         <label
           className={`flex items-center gap-2 text-sm ${
-            canUseCrossCompany ? "text-slate-300" : "text-slate-500"
+            canUseCrossCompany ? "text-fg/90" : "text-muted"
           }`}
         >
           <input
@@ -180,11 +180,11 @@ export function ProfilesSection({
             checked={crossCompany && canUseCrossCompany}
             onChange={(e) => setCrossCompany(e.target.checked)}
             disabled={busy || !canUseCrossCompany}
-            className="h-4 w-4 rounded border-white/20 bg-black/20 accent-accent"
+            className="h-4 w-4 rounded border-border/20 bg-surface-2/60 accent-primary"
           />
           Match across every indexed company
           {!canUseCrossCompany && (
-            <span className="rounded bg-white/5 px-1.5 py-0.5 text-[11px] text-slate-400">
+            <span className="rounded bg-fg/[0.06] px-1.5 py-0.5 text-[11px] text-muted">
               Max only
             </span>
           )}
@@ -194,7 +194,7 @@ export function ProfilesSection({
         <button
           type="submit"
           disabled={busy}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-bright disabled:opacity-60"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-bright disabled:opacity-60"
         >
           {busy ? "Creating…" : "Create profile"}
         </button>
@@ -255,7 +255,7 @@ function EditProfile({
         value={name}
         onChange={(e) => setName(e.target.value)}
         disabled={busy}
-        className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent"
+        className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
       />
       <div className="grid gap-2 sm:grid-cols-2">
         <input
@@ -264,7 +264,7 @@ function EditProfile({
           onChange={(e) => setKeywords(e.target.value)}
           placeholder="Keywords (comma separated)"
           disabled={busy}
-          className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent"
+          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
         />
         <input
           aria-label="Location filter"
@@ -272,12 +272,12 @@ function EditProfile({
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Location"
           disabled={busy}
-          className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent"
+          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
         />
       </div>
       <label
         className={`flex items-center gap-2 text-sm ${
-          canUseCrossCompany ? "text-slate-300" : "text-slate-500"
+          canUseCrossCompany ? "text-fg/90" : "text-muted"
         }`}
       >
         <input
@@ -285,11 +285,11 @@ function EditProfile({
           checked={crossCompany && canUseCrossCompany}
           onChange={(e) => setCrossCompany(e.target.checked)}
           disabled={busy || !canUseCrossCompany}
-          className="h-4 w-4 rounded border-white/20 bg-black/20 accent-accent"
+          className="h-4 w-4 rounded border-border/20 bg-surface-2/60 accent-primary"
         />
         Match across every indexed company
         {!canUseCrossCompany && (
-          <span className="rounded bg-white/5 px-1.5 py-0.5 text-[11px] text-slate-400">
+          <span className="rounded bg-fg/[0.06] px-1.5 py-0.5 text-[11px] text-muted">
             Max only
           </span>
         )}
@@ -300,7 +300,7 @@ function EditProfile({
           type="button"
           onClick={save}
           disabled={busy}
-          className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white hover:bg-accent-bright disabled:opacity-60"
+          className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-bright disabled:opacity-60"
         >
           {busy ? "Saving…" : "Save"}
         </button>
@@ -308,7 +308,7 @@ function EditProfile({
           type="button"
           onClick={onCancel}
           disabled={busy}
-          className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-300 hover:bg-white/5"
+          className="rounded-lg border border-border/10 px-3 py-1.5 text-xs text-fg/90 hover:bg-surface-2"
         >
           Cancel
         </button>

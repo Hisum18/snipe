@@ -1,6 +1,19 @@
 import type { Metadata } from "next";
+import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 
 import "./globals.css";
+
+// Self-hosted by next/font (no external stylesheet), so CSP stays font-src 'self'.
+const sans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Snipe — Apply before the flood",
@@ -15,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-ink text-slate-100 antialiased">
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+      <body className="min-h-dvh bg-bg font-sans text-fg antialiased">
         {children}
       </body>
     </html>

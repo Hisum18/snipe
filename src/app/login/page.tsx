@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { SignupForm } from "@/components/signup-form";
+import { Target } from "@/components/icons";
 import { getCurrentUser } from "@/lib/auth/session";
 
 const ERRORS: Record<string, string> = {
@@ -22,22 +23,31 @@ export default async function LoginPage({
   const message = error ? ERRORS[error] : undefined;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
-      <Link href="/" className="mb-8 text-lg font-bold tracking-tight">
-        Snipe<span className="text-accent">.</span>
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 py-12">
+      <Link href="/" className="mb-8 inline-flex items-center gap-2 text-lg font-bold tracking-tight">
+        <Target className="h-5 w-5 text-primary-bright" />
+        Snipe
       </Link>
-      <h1 className="text-2xl font-bold tracking-tight">Sign in or create an account</h1>
-      <p className="mt-2 text-sm text-slate-400">
-        Enter your email and we&apos;ll send you a one-time sign-in link.
-      </p>
-      {message && (
-        <p className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-200">
-          {message}
+      <div className="rounded-2xl border border-border/10 bg-surface p-7 shadow-card">
+        <h1 className="text-2xl font-bold tracking-tight">Sign in or create an account</h1>
+        <p className="mt-2 text-sm text-muted">
+          Enter your email and we&apos;ll send you a one-time sign-in link.
         </p>
-      )}
-      <div className="mt-6">
-        <SignupForm />
+        {message && (
+          <p
+            role="alert"
+            className="mt-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
+          >
+            {message}
+          </p>
+        )}
+        <div className="mt-6">
+          <SignupForm />
+        </div>
       </div>
+      <p className="mt-6 text-center text-xs text-muted">
+        By continuing you agree to receive job-alert emails. Unsubscribe anytime.
+      </p>
     </main>
   );
 }

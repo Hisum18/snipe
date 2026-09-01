@@ -30,14 +30,14 @@ export function WatchList({ watches }: { watches: WatchRow[] }) {
 
   if (watches.length === 0) {
     return (
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-muted">
         No companies watched yet. Add one above to start getting alerts.
       </p>
     );
   }
 
   return (
-    <ul className="divide-y divide-white/5">
+    <ul className="divide-y divide-border/[0.06]">
       {watches.map((w) =>
         editing === w.id ? (
           <li key={w.id} className="py-3">
@@ -56,7 +56,7 @@ export function WatchList({ watches }: { watches: WatchRow[] }) {
               <div className="flex items-center gap-2">
                 {/* ATS-derived text rendered as JSX text — auto-escaped by React. */}
                 <span className="truncate font-medium">{w.companyName}</span>
-                <span className="rounded bg-white/5 px-1.5 py-0.5 text-[11px] uppercase text-slate-400">
+                <span className="rounded bg-fg/[0.06] px-1.5 py-0.5 text-[11px] uppercase text-muted">
                   {w.atsProvider}
                 </span>
                 {!w.active && (
@@ -65,7 +65,7 @@ export function WatchList({ watches }: { watches: WatchRow[] }) {
                   </span>
                 )}
               </div>
-              <div className="mt-0.5 truncate text-xs text-slate-500">
+              <div className="mt-0.5 truncate text-xs text-muted">
                 {w.keywordFilters.length > 0 ? w.keywordFilters.join(", ") : "all roles"}
                 {w.locationFilter ? ` · ${w.locationFilter}` : ""}
               </div>
@@ -74,7 +74,7 @@ export function WatchList({ watches }: { watches: WatchRow[] }) {
               <button
                 type="button"
                 onClick={() => setEditing(w.id)}
-                className="rounded-lg border border-white/10 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/5"
+                className="rounded-lg border border-border/10 px-2.5 py-1 text-xs text-fg/90 hover:bg-surface-2"
               >
                 Edit
               </button>
@@ -82,7 +82,7 @@ export function WatchList({ watches }: { watches: WatchRow[] }) {
                 type="button"
                 onClick={() => remove(w.id)}
                 disabled={removing === w.id}
-                className="rounded-lg border border-white/10 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/5 disabled:opacity-50"
+                className="rounded-lg border border-border/10 px-2.5 py-1 text-xs text-fg/90 hover:bg-surface-2 disabled:opacity-50"
               >
                 {removing === w.id ? "Removing…" : "Remove"}
               </button>
@@ -143,7 +143,7 @@ function EditWatch({
           onChange={(e) => setKeywords(e.target.value)}
           placeholder="Keywords (comma separated)"
           disabled={busy}
-          className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent"
+          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
         />
         <input
           aria-label="Location filter"
@@ -151,7 +151,7 @@ function EditWatch({
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Location"
           disabled={busy}
-          className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent"
+          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
         />
       </div>
       {error && <p className="text-xs text-rose-300">{error}</p>}
@@ -160,7 +160,7 @@ function EditWatch({
           type="button"
           onClick={save}
           disabled={busy}
-          className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white hover:bg-accent-bright disabled:opacity-60"
+          className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-bright disabled:opacity-60"
         >
           {busy ? "Saving…" : "Save"}
         </button>
@@ -168,7 +168,7 @@ function EditWatch({
           type="button"
           onClick={onCancel}
           disabled={busy}
-          className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-300 hover:bg-white/5"
+          className="rounded-lg border border-border/10 px-3 py-1.5 text-xs text-fg/90 hover:bg-surface-2"
         >
           Cancel
         </button>
