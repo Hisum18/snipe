@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Navbar } from "@/components/navbar/navbar";
 import { SignupForm } from "@/components/signup-form";
 import {
   ArrowRight,
@@ -40,7 +41,7 @@ export default function LandingPage() {
     <>
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-border/10 bg-bg/70 backdrop-blur-md">
-        <div className="mx-auto flex h-[--header-h] max-w-content items-center justify-between px-6">
+        <div className="mx-auto flex max-w-content items-center justify-between gap-4 px-6 py-3">
           <Link
             href="/"
             className="flex items-center gap-2 text-lg font-bold tracking-tight"
@@ -48,32 +49,13 @@ export default function LandingPage() {
             <Target className="h-5 w-5 text-primary-bright" />
             Snipe
           </Link>
-          <nav className="flex items-center gap-1 text-sm">
-            <a
-              href="#how"
-              className="rounded-lg px-3 py-2 text-muted transition-colors hover:text-fg"
-            >
-              How it works
-            </a>
-            <Link
-              href="/pricing"
-              className="rounded-lg px-3 py-2 text-muted transition-colors hover:text-fg"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-lg px-3 py-2 text-muted transition-colors hover:text-fg"
-            >
-              Sign in
-            </Link>
-            <a
-              href="#get-started"
-              className="ml-1 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 font-semibold text-white transition-colors hover:bg-primary-bright"
-            >
-              Get alerts <ArrowRight className="h-4 w-4" />
-            </a>
-          </nav>
+          <Navbar />
+          <a
+            href="#get-started"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-bright"
+          >
+            Get alerts <ArrowRight className="h-4 w-4" />
+          </a>
         </div>
       </header>
 
