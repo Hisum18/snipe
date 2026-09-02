@@ -12,6 +12,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { AdapterAccount } from "next-auth/adapters";
 
 /* ---------------------------------------------------------------------------
  * Enums
@@ -51,6 +52,8 @@ export const users = pgTable(
     email: text("email").notNull(),
     emailVerified: timestamp("email_verified", { withTimezone: true }),
     image: text("image"),
+    // Credentials (email/password) login. Null for OAuth-only accounts.
+    passwordHash: text("password_hash"),
 
     // Billing (all derived server-side; never trusted from the client)
     stripeCustomerId: text("stripe_customer_id"),
@@ -109,6 +112,30 @@ export const verificationTokens = pgTable(
     expires: timestamp("expires", { withTimezone: true }).notNull(),
   },
   (t) => [primaryKey({ columns: [t.identifier, t.token] })],
+);
+
+/** OAuth provider accounts (Google), linked to a user — Auth.js adapter shape. */
+export const accounts = pgTable(
+  "accounts",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: text("type").$type<AdapterAccount["type"]>().notNull(),
+    provider: text("provider").notNull(),
+    providerAccountId: text("provider_account_id").notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
+  },
+  (t) => [
+    primaryKey({ columns: [t.provider, t.providerAccountId] }),
+    index("accounts_user_id_idx").on(t.userId),
+  ],
 );
 
 /* ---------------------------------------------------------------------------
