@@ -38,7 +38,7 @@ try {
     console.log("Updated the existing test account's password.");
   } else {
     await client.query(
-      "insert into users (id, email, password_hash) values (gen_random_uuid()::text, $1, $2)",
+      "insert into users (id, email, password_hash, email_verified) values (gen_random_uuid()::text, $1, $2, now())",
       [EMAIL, passwordHash],
     );
     console.log("Created the test account.");

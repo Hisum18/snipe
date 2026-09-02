@@ -38,7 +38,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   }),
   // JWT sessions are required for the Credentials provider (it bypasses the
   // adapter's DB sessions). Google users are still persisted via the adapter.
-  session: { strategy: "jwt" },
+  // A shorter lifetime limits exposure since JWTs can't be revoked server-side;
+  // updateAge slides it forward on activity so active users aren't logged out.
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // refresh at most once per day
+  },
   trustHost: true,
   pages: { signIn: "/login" },
   providers: [

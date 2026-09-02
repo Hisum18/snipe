@@ -67,8 +67,14 @@ export function Navbar({ authed, email }: { authed: boolean; email?: string }) {
 
   const initial = (email?.trim()?.[0] ?? "U").toUpperCase();
 
-  // Auth pages are full-screen split-screens; the site bar would clutter them.
-  if (pathname === "/login" || pathname === "/signup") return null;
+  // Auth pages are full-screen; the site bar would clutter them.
+  if (
+    ["/login", "/signup", "/forgot-password", "/reset-password"].includes(
+      pathname,
+    )
+  ) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-40 px-4 pt-3">

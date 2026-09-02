@@ -68,6 +68,66 @@ export async function sendMagicLinkEmail(
   });
 }
 
+function actionEmail(heading: string, body: string, cta: string, url: string): {
+  html: string;
+  text: string;
+} {
+  const safeUrl = escapeAttr(url);
+  const html = `<!doctype html>
+<html><body style="font-family:system-ui,sans-serif;background:#000;color:#e8ecf7;padding:32px">
+  <div style="max-width:480px;margin:0 auto;background:#0a0a0a;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:32px">
+    <h1 style="font-size:20px;margin:0 0 12px;color:#fff">${escapeHtml(heading)}</h1>
+    <p style="color:#a3a3a3;line-height:1.5">${escapeHtml(body)}</p>
+    <p style="margin:24px 0">
+      <a href="${safeUrl}" style="display:inline-block;background:#fff;color:#000;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:600">${escapeHtml(cta)}</a>
+    </p>
+    <p style="color:#6b7488;font-size:13px">If you didn't request this, you can safely ignore this email.</p>
+  </div>
+</body></html>`;
+  const text = `${heading}\n\n${body}\n\n${cta}: ${url}\n\nIf you didn't request this, ignore this email.`;
+  return { html, text };
+}
+
+/** Confirm ownership of an email address before it can receive job alerts. */
+export async function sendVerifyEmail(to: string, url: string): Promise<void> {
+  const { html, text } = actionEmail(
+    "Verify your email",
+    "Confirm your email to finish setting up Snipe and start receiving job alerts. This link expires in 24 hours.",
+    "Verify email",
+    url,
+  );
+  await sendEmail({ to, subject: "Verify your email for Snipe", html, text });
+}
+
+/** Reset-password link. */
+export async function sendResetEmail(to: string, url: string): Promise<void> {
+  const { html, text } = actionEmail(
+    "Reset your password",
+    "Click below to choose a new password. This link expires in 1 hour and can be used once.",
+    "Reset password",
+    url,
+  );
+  await sendEmail({ to, subject: "Reset your Snipe password", html, text });
+}
+
+/**
+ * Sent when someone tries to sign up with an already-registered email, so the
+ * signup API can return an identical response for new and existing emails
+ * (no account-existence enumeration).
+ */
+export async function sendExistingAccountEmail(
+  to: string,
+  signInUrl: string,
+): Promise<void> {
+  const { html, text } = actionEmail(
+    "You already have a Snipe account",
+    "Someone tried to sign up with this email, but an account already exists. If it was you, just sign in — no need to sign up again.",
+    "Sign in",
+    signInUrl,
+  );
+  await sendEmail({ to, subject: "You already have a Snipe account", html, text });
+}
+
 /** Placeholder demonstrating escaped ATS content in job alert emails. */
 export function renderJobLine(title: string, company: string, location: string | null): string {
   const parts = [escapeHtml(title), "—", escapeHtml(company)];
