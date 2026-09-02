@@ -112,7 +112,7 @@ export default async function PricingPage({
 }) {
   const user = await getCurrentUser();
   const { welcome } = await searchParams;
-  const cta = user ? "/dashboard" : "/login";
+  const cta = user ? "/dashboard" : "/signup";
 
   const plans: PricingPlan[] = TIERS.map((tier) => ({
     id: tier,

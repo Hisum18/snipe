@@ -60,7 +60,7 @@ export default function HowItWorksPage() {
 
         <div className="mt-12 flex flex-wrap items-center gap-3">
           <Link
-            href="/login"
+            href="/signup"
             className="inline-flex items-center gap-1.5 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-neutral-200"
           >
             Get started <ArrowRight className="h-4 w-4" />

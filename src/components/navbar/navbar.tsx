@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import { signOutAction } from "@/app/actions/auth";
 import { ArrowRight, Target } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
@@ -65,6 +66,9 @@ export function Navbar({ authed, email }: { authed: boolean; email?: string }) {
   }, [userOpen]);
 
   const initial = (email?.trim()?.[0] ?? "U").toUpperCase();
+
+  // Auth pages are full-screen split-screens; the site bar would clutter them.
+  if (pathname === "/login" || pathname === "/signup") return null;
 
   return (
     <header className="sticky top-0 z-40 px-4 pt-3">
@@ -174,7 +178,7 @@ export function Navbar({ authed, email }: { authed: boolean; email?: string }) {
                     Billing &amp; plans
                   </Link>
                   <div className="my-1 h-px bg-white/[0.08]" />
-                  <form action="/api/auth/logout" method="post">
+                  <form action={signOutAction}>
                     <button
                       type="submit"
                       role="menuitem"
@@ -195,7 +199,7 @@ export function Navbar({ authed, email }: { authed: boolean; email?: string }) {
                 Sign in
               </Link>
               <Link
-                href="/login"
+                href="/signup"
                 className="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-sm font-semibold text-black transition-colors hover:bg-neutral-200"
               >
                 Get started <ArrowRight className="h-4 w-4" />
@@ -226,7 +230,7 @@ export function Navbar({ authed, email }: { authed: boolean; email?: string }) {
               </Link>
             ))}
             {authed ? (
-              <form action="/api/auth/logout" method="post">
+              <form action={signOutAction}>
                 <button
                   type="submit"
                   className="w-full cursor-pointer rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"

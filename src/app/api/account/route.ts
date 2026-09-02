@@ -1,9 +1,10 @@
+import { cookies } from "next/headers";
+
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db";
 import { subscriptions, users, verificationTokens } from "@/db/schema";
 import { enforceRateLimit, json, requireApiUser } from "@/lib/api";
-import { destroyCurrentSession } from "@/lib/auth/session";
 import { log } from "@/lib/log";
 import { writeByUser } from "@/lib/ratelimit";
 import { getStripe } from "@/lib/stripe";
@@ -56,8 +57,10 @@ export async function DELETE() {
   // notifications, sessions, subscriptions all have ON DELETE CASCADE).
   await db.delete(users).where(eq(users.id, user.id));
 
-  // Invalidate the current session cookie + row (row already gone via cascade).
-  await destroyCurrentSession();
+  // Clear the Auth.js session cookie (dev + prod cookie names).
+  const store = await cookies();
+  store.delete("authjs.session-token");
+  store.delete("__Secure-authjs.session-token");
 
   return json({ ok: true });
 }
