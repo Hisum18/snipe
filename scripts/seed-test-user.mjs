@@ -17,8 +17,13 @@ if (!url) {
 }
 
 const isLocal = /@(localhost|127\.0\.0\.1)[:/]/.test(url);
+// node-postgres parses sslmode etc. out of the connection string and that
+// parsed value overrides an explicit `ssl` option, so strip the query string
+// first, otherwise a URL with ?sslmode=require ignores ssl:false below and
+// tries SSL against a local server that doesn't support it.
+const strippedUrl = url.replace(/\?.*$/, "");
 const client = new pg.Client({
-  connectionString: url,
+  connectionString: strippedUrl,
   ssl: isLocal ? false : { rejectUnauthorized: false },
 });
 

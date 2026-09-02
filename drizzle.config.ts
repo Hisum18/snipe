@@ -1,4 +1,10 @@
+import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
+
+// drizzle-kit is a standalone CLI, not run through Next, so .env.local is not
+// loaded automatically the way it is for `next dev` / `next build`. Load it
+// here so `npm run db:migrate` etc. work without prefixing the command.
+config({ path: ".env.local", quiet: true });
 
 // drizzle-kit runs at build/CI time (Node), not in the edge runtime, so we read
 // the connection string directly from the environment here rather than through
