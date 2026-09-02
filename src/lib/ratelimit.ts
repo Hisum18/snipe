@@ -110,6 +110,32 @@ export function smsVerifyByUser(): Ratelimit {
   );
 }
 
+/** Password login attempts per email (brute-force protection on one account). */
+export function loginByEmail(): Ratelimit {
+  return make(
+    "login-email",
+    new Ratelimit({
+      redis: getRedis(),
+      limiter: Ratelimit.slidingWindow(10, "15 m"),
+      prefix: "rl:login:email",
+      analytics: false,
+    }),
+  );
+}
+
+/** Password login attempts per IP (bulk credential-stuffing protection). */
+export function loginByIp(): Ratelimit {
+  return make(
+    "login-ip",
+    new Ratelimit({
+      redis: getRedis(),
+      limiter: Ratelimit.slidingWindow(30, "15 m"),
+      prefix: "rl:login:ip",
+      analytics: false,
+    }),
+  );
+}
+
 /** Extract the best-effort client IP from request headers. */
 export function clientIp(req: Request): string {
   const xff = req.headers.get("x-forwarded-for");
