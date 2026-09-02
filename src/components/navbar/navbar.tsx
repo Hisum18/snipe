@@ -78,7 +78,7 @@ export function Navbar({ authed, email }: { authed: boolean; email?: string }) {
 
   return (
     <header className="sticky top-0 z-40 px-4 pt-3">
-      <div className="mx-auto flex h-14 max-w-content items-center justify-between gap-6 rounded-full border border-white/[0.12] bg-white/[0.05] px-3 shadow-xl shadow-black/40 backdrop-blur-2xl md:px-4">
+      <div className="mx-auto flex h-14 max-w-content items-center justify-between gap-6 rounded-full border border-white/[0.12] bg-neutral-950/60 px-3 shadow-xl shadow-black/40 backdrop-blur-2xl md:px-4">
         {/* Left: mobile toggle + logo + links */}
         <div className="flex items-center gap-6">
           <button
