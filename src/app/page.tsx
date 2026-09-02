@@ -6,15 +6,16 @@ import { ArrowRight, ShieldCheck, Target } from "@/components/icons";
 export default function LandingPage() {
   return (
     <div className="flex min-h-[calc(100dvh-4.5rem)] flex-col bg-black text-white selection:bg-white selection:text-black">
-      {/* Hero — full-bleed animated shader, single centered screen */}
-      <section className="relative isolate flex flex-1 items-center overflow-hidden">
-        <ShaderBg />
-        <div
-          className="pointer-events-none absolute inset-0 bg-black/40"
-          aria-hidden="true"
-        />
+      {/* Water background covers the whole screen (behind the glass navbar too). */}
+      <ShaderBg />
+      <div
+        className="pointer-events-none fixed inset-0 z-0 bg-black/40"
+        aria-hidden="true"
+      />
 
-        <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center px-6 py-14 text-center">
+      {/* Hero — single centered screen */}
+      <section className="relative z-10 flex flex-1 items-center">
+        <div className="mx-auto flex w-full max-w-2xl flex-col items-center px-6 py-14 text-center">
           <h1
             className="animate-flood-rise text-5xl font-extrabold leading-[1.03] tracking-tight sm:text-6xl"
             style={{ animationDelay: "60ms" }}
