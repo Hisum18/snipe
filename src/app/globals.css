@@ -115,51 +115,46 @@
     animation: pulse-dot 1.8s ease-in-out infinite;
   }
 
-  /* Intro: content "locks into focus" (blur -> sharp), on-theme for a
-     sniper/precision brand. One-shot; disabled under reduced-motion below. */
-  @keyframes focus-in {
-    from {
-      opacity: 0;
-      filter: blur(12px);
-      transform: translateY(12px) scale(0.985);
-    }
-    to {
-      opacity: 1;
-      filter: blur(0);
-      transform: none;
-    }
-  }
-  .animate-focus-in {
-    animation: focus-in 0.85s cubic-bezier(0.16, 0.84, 0.24, 1) both;
-  }
-
-  /* A single scanner line sweeps the hero on load (detection motif). */
-  @keyframes scan-sweep {
+  /* Intro reveal — content rises like a tide coming in, on-theme for
+     "apply before the flood". Staggered per element; disabled under
+     reduced-motion below. */
+  @keyframes flood-rise {
     0% {
-      top: 6%;
       opacity: 0;
+      transform: translateY(42px);
     }
-    12%,
-    85% {
-      opacity: 0.5;
+    60% {
+      opacity: 1;
     }
     100% {
-      top: 94%;
-      opacity: 0;
+      opacity: 1;
+      transform: translateY(0);
     }
   }
-  .scan-line {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgb(255 255 255 / 0.5),
-      transparent
+  .animate-flood-rise {
+    animation: flood-rise 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Flowing-water shimmer for the "flood" wordmark. */
+  @keyframes flood-flow {
+    to {
+      background-position: 200% center;
+    }
+  }
+  .flood-text {
+    background-image: linear-gradient(
+      110deg,
+      #ffffff 0%,
+      #7c7c7c 25%,
+      #ffffff 50%,
+      #7c7c7c 75%,
+      #ffffff 100%
     );
-    animation: scan-sweep 1.9s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: flood-flow 6s linear infinite;
   }
 }
 

@@ -72,7 +72,10 @@ export function PricingSection({
   return (
     <div className="mx-auto w-full max-w-content px-4 py-14 text-white selection:bg-white selection:text-black sm:px-6 md:py-20">
       {/* Header */}
-      <header className="mb-10 text-center">
+      <header
+        className="animate-flood-rise mb-10 text-center"
+        style={{ animationDelay: "40ms" }}
+      >
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
           Pricing that keeps up{" "}
           <span className="text-neutral-500">with your search.</span>
@@ -84,7 +87,10 @@ export function PricingSection({
       </header>
 
       {/* Billing toggle */}
-      <div className="mb-10 mt-2 flex justify-center">
+      <div
+        className="animate-flood-rise mb-10 mt-2 flex justify-center"
+        style={{ animationDelay: "140ms" }}
+      >
         <ToggleGroup
           type="single"
           value={cycle}
@@ -115,7 +121,11 @@ export function PricingSection({
       </div>
 
       {/* Pricing cards */}
-      <section aria-label="Plans" className="grid gap-6 md:grid-cols-3 md:gap-5 lg:gap-6">
+      <section
+        aria-label="Plans"
+        style={{ animationDelay: "240ms" }}
+        className="animate-flood-rise grid gap-6 md:grid-cols-3 md:gap-5 lg:gap-6"
+      >
         {plans.map((plan) => {
           const isFeatured = plan.isPopular;
           const isFree = plan.priceMonthly === 0 && plan.priceAnnually === 0;
@@ -220,7 +230,11 @@ export function PricingSection({
       </section>
 
       {/* Feature comparison */}
-      <section aria-label="Feature comparison" className="mt-16">
+      <section
+        aria-label="Feature comparison"
+        style={{ animationDelay: "360ms" }}
+        className="animate-flood-rise mt-16"
+      >
         <h2 className="mb-6 text-center text-2xl font-semibold tracking-tight text-white">
           Compare every feature
         </h2>
