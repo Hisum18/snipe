@@ -4,33 +4,26 @@ import { redirect } from "next/navigation";
 import { AuthCard } from "@/components/auth/auth-card";
 import { getCurrentUser } from "@/lib/auth/session";
 
-export const metadata: Metadata = { title: "Sign in — Snipe" };
+export const metadata: Metadata = { title: "Sign up — Snipe" };
 
-export default async function LoginPage({
+export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; verified?: string; reset?: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const user = await getCurrentUser();
   if (user) redirect("/dashboard");
 
-  const { error, verified, reset } = await searchParams;
-  const notice = verified
-    ? "Email verified — you can sign in now."
-    : reset
-      ? "Password updated — sign in with your new password."
-      : undefined;
+  const { error } = await searchParams;
   const googleEnabled = Boolean(
     process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET,
   );
 
   return (
     <AuthCard
-      mode="signin"
-      image="/auth-login.jpg"
+      mode="signup"
       googleEnabled={googleEnabled}
       initialError={error}
-      initialNotice={notice}
     />
   );
 }

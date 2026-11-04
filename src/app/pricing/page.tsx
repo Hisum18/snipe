@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Check, Target } from "@/components/icons";
+import { SiteFooter } from "@/components/site-footer";
 import {
   PricingSection,
   type ComparisonRow,
@@ -105,13 +105,8 @@ const ANNUAL_DISCOUNT_PERCENT = Math.round(
   (1 - PLAN_PRICING.pro.annual / (PLAN_PRICING.pro.monthly * 12)) * 100,
 );
 
-export default async function PricingPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ welcome?: string }>;
-}) {
+export default async function PricingPage() {
   const user = await getCurrentUser();
-  const { welcome } = await searchParams;
   const cta = user ? "/dashboard" : "/signup";
 
   const plans: PricingPlan[] = TIERS.map((tier) => ({
@@ -123,41 +118,21 @@ export default async function PricingPage({
     isPopular: tier === "pro",
     buttonLabel: BUTTON_LABELS[tier],
     href: cta,
+    checkout: Boolean(user) && tier !== "free",
     features: cardFeatures(tier),
   }));
 
   return (
-    <div className="min-h-dvh bg-black text-white selection:bg-white selection:text-black">
-      <main className="mx-auto max-w-content px-6">
-        {welcome && (
-          <div
-            role="status"
-            className="mx-auto mt-6 flex max-w-2xl items-start gap-3 rounded-xl border border-white/[0.12] bg-white/[0.03] p-4 text-sm"
-          >
-            <Check className="mt-0.5 h-5 w-5 shrink-0 text-white" />
-            <span className="text-neutral-300">
-              Check your inbox for your one-time sign-in link — it expires in 15
-              minutes. Meanwhile, here&apos;s every plan.
-            </span>
-          </div>
-        )}
-
+    <div className="flex min-h-[calc(100dvh-var(--header-h))] flex-col bg-black text-white">
+      <main className="mx-auto w-full max-w-content flex-1 px-6 lg:px-10">
         <PricingSection
           plans={plans}
           comparison={buildComparison()}
           annualDiscountPercent={ANNUAL_DISCOUNT_PERCENT}
         />
 
-        {/* Footer */}
-        <footer className="border-t border-white/[0.08] py-10 text-sm text-neutral-500">
-          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <span className="flex items-center gap-2">
-              <Target className="h-4 w-4 text-neutral-400" />© {new Date().getFullYear()} Snipe
-            </span>
-            <span>Polls public ATS endpoints. Not affiliated with any employer.</span>
-          </div>
-        </footer>
       </main>
+      <SiteFooter />
     </div>
   );
 }

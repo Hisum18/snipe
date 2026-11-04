@@ -27,13 +27,17 @@ export function ProfilesSection({
   const [crossCompany, setCrossCompany] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [added, setAdded] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<string | null>(null);
+  const [removeError, setRemoveError] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError("");
+    setAdded(false);
     try {
       const res = await fetch("/api/profiles", {
         method: "POST",
@@ -57,6 +61,7 @@ export function ProfilesSection({
       setKeywords("");
       setLocation("");
       setCrossCompany(false);
+      setAdded(true);
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -67,9 +72,18 @@ export function ProfilesSection({
 
   async function remove(id: string) {
     setRemoving(id);
+    setConfirming(null);
+    setRemoveError("");
     try {
       const res = await fetch(`/api/profiles/${id}`, { method: "DELETE" });
-      if (res.ok) router.refresh();
+      if (res.ok) {
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setRemoveError(data.error ?? "Couldn't remove that profile. Try again.");
+      }
+    } catch {
+      setRemoveError("Network error. Try again.");
     } finally {
       setRemoving(null);
     }
@@ -78,11 +92,11 @@ export function ProfilesSection({
   return (
     <div className="space-y-5">
       {profiles.length === 0 ? (
-        <p className="text-sm text-muted">
+        <p className="text-sm text-neutral-400">
           No profiles yet. A profile is a saved keyword/location filter for your alerts.
         </p>
       ) : (
-        <ul className="divide-y divide-border/[0.06]">
+        <ul className="divide-y divide-white/[0.06]">
           {profiles.map((p) =>
             editing === p.id ? (
               <li key={p.id} className="py-3">
@@ -97,51 +111,72 @@ export function ProfilesSection({
                 />
               </li>
             ) : (
-              <li key={p.id} className="flex items-center justify-between gap-4 py-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    {/* User-supplied text rendered as escaped JSX text. */}
-                    <span className="truncate font-medium">{p.name}</span>
-                    {p.crossCompany && (
-                      <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[11px] text-primary-bright">
-                        cross-company
-                      </span>
-                    )}
-                    {!p.active && (
-                      <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[11px] text-amber-300">
-                        inactive
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-0.5 truncate text-xs text-muted">
-                    {p.keywordFilters.length > 0 ? p.keywordFilters.join(", ") : "all keywords"}
-                    {p.locationFilter ? ` · ${p.locationFilter}` : ""}
-                  </div>
+              <li key={p.id} className="py-3">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {/* User-supplied text rendered as escaped JSX text. */}
+                  <span className="max-w-full truncate font-normal">{p.name}</span>
+                  {p.crossCompany && (
+                    <span className="rounded bg-white/20 px-1.5 py-0.5 text-[11px] text-neutral-200">
+                      cross-company
+                    </span>
+                  )}
+                  {!p.active && (
+                    <span className="rounded bg-white/10 px-1.5 py-0.5 text-[11px] text-neutral-300">
+                      inactive
+                    </span>
+                  )}
                 </div>
-                <div className="flex shrink-0 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditing(p.id)}
-                    className="rounded-lg border border-border/10 px-2.5 py-1 text-xs text-fg/90 hover:bg-surface-2"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => remove(p.id)}
-                    disabled={removing === p.id}
-                    className="rounded-lg border border-border/10 px-2.5 py-1 text-xs text-fg/90 hover:bg-surface-2 disabled:opacity-50"
-                  >
-                    {removing === p.id ? "Removing…" : "Remove"}
-                  </button>
+                <div className="mt-0.5 truncate text-xs text-neutral-400">
+                  {p.keywordFilters.length > 0 ? p.keywordFilters.join(", ") : "all keywords"}
+                  {p.locationFilter ? ` · ${p.locationFilter}` : ""}
+                </div>
+                <div className="mt-2 flex gap-2">
+                  {confirming === p.id ? (
+                    <>
+                      <span className="self-center text-xs text-neutral-400">Remove?</span>
+                      <button
+                        type="button"
+                        onClick={() => remove(p.id)}
+                        disabled={removing === p.id}
+                        className="rounded-lg border border-destructive/40 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                      >
+                        {removing === p.id ? "Removing…" : "Confirm"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirming(null)}
+                        className="rounded-lg border border-white/10 px-2.5 py-1 text-xs text-white/90 hover:bg-white/[0.06]"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setEditing(p.id)}
+                        className="rounded-lg border border-white/10 px-2.5 py-1 text-xs text-white/90 hover:bg-white/[0.06]"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirming(p.id)}
+                        className="rounded-lg border border-white/10 px-2.5 py-1 text-xs text-white/90 hover:bg-white/[0.06]"
+                      >
+                        Remove
+                      </button>
+                    </>
+                  )}
                 </div>
               </li>
             ),
           )}
         </ul>
       )}
+      {removeError && <p className="text-sm text-destructive">{removeError}</p>}
 
-      <form onSubmit={add} className="space-y-3 border-t border-border/10 pt-5">
+      <form onSubmit={add} className="space-y-3 border-t border-white/10 pt-5">
         <input
           aria-label="Profile name"
           required
@@ -149,7 +184,7 @@ export function ProfilesSection({
           value={name}
           onChange={(e) => setName(e.target.value)}
           disabled={busy}
-          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
+          className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm outline-none focus:border-brand"
         />
         <div className="grid gap-3 sm:grid-cols-2">
           <input
@@ -158,7 +193,7 @@ export function ProfilesSection({
             value={keywords}
             onChange={(e) => setKeywords(e.target.value)}
             disabled={busy}
-            className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
+            className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm outline-none focus:border-brand"
           />
           <input
             aria-label="Location filter"
@@ -166,13 +201,13 @@ export function ProfilesSection({
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             disabled={busy}
-            className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
+            className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm outline-none focus:border-brand"
           />
         </div>
 
         <label
           className={`flex items-center gap-2 text-sm ${
-            canUseCrossCompany ? "text-fg/90" : "text-muted"
+            canUseCrossCompany ? "text-white/90" : "text-neutral-400"
           }`}
         >
           <input
@@ -180,21 +215,22 @@ export function ProfilesSection({
             checked={crossCompany && canUseCrossCompany}
             onChange={(e) => setCrossCompany(e.target.checked)}
             disabled={busy || !canUseCrossCompany}
-            className="h-4 w-4 rounded border-border/20 bg-surface-2/60 accent-primary"
+            className="h-4 w-4 rounded border-white/20 bg-white/[0.04] accent-white"
           />
           Match across every indexed company
           {!canUseCrossCompany && (
-            <span className="rounded bg-fg/[0.06] px-1.5 py-0.5 text-[11px] text-muted">
+            <span className="rounded bg-white/[0.08] px-1.5 py-0.5 text-[11px] text-neutral-400">
               Max only
             </span>
           )}
         </label>
 
-        {error && <p className="text-sm text-rose-300">{error}</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        {added && !error && <p className="text-sm text-neutral-300">Added.</p>}
         <button
           type="submit"
           disabled={busy}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-bright disabled:opacity-60"
+          className="rounded-lg bg-accent px-4 py-2 text-sm font-normal text-accent-foreground hover:bg-accent/90 disabled:opacity-60"
         >
           {busy ? "Creating…" : "Create profile"}
         </button>
@@ -255,7 +291,7 @@ function EditProfile({
         value={name}
         onChange={(e) => setName(e.target.value)}
         disabled={busy}
-        className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
+        className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm outline-none focus:border-brand"
       />
       <div className="grid gap-2 sm:grid-cols-2">
         <input
@@ -264,7 +300,7 @@ function EditProfile({
           onChange={(e) => setKeywords(e.target.value)}
           placeholder="Keywords (comma separated)"
           disabled={busy}
-          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
+          className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm outline-none focus:border-brand"
         />
         <input
           aria-label="Location filter"
@@ -272,12 +308,12 @@ function EditProfile({
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Location"
           disabled={busy}
-          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
+          className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm outline-none focus:border-brand"
         />
       </div>
       <label
         className={`flex items-center gap-2 text-sm ${
-          canUseCrossCompany ? "text-fg/90" : "text-muted"
+          canUseCrossCompany ? "text-white/90" : "text-neutral-400"
         }`}
       >
         <input
@@ -285,22 +321,22 @@ function EditProfile({
           checked={crossCompany && canUseCrossCompany}
           onChange={(e) => setCrossCompany(e.target.checked)}
           disabled={busy || !canUseCrossCompany}
-          className="h-4 w-4 rounded border-border/20 bg-surface-2/60 accent-primary"
+          className="h-4 w-4 rounded border-white/20 bg-white/[0.04] accent-white"
         />
         Match across every indexed company
         {!canUseCrossCompany && (
-          <span className="rounded bg-fg/[0.06] px-1.5 py-0.5 text-[11px] text-muted">
+          <span className="rounded bg-white/[0.08] px-1.5 py-0.5 text-[11px] text-neutral-400">
             Max only
           </span>
         )}
       </label>
-      {error && <p className="text-xs text-rose-300">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
       <div className="flex gap-2">
         <button
           type="button"
           onClick={save}
           disabled={busy}
-          className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-bright disabled:opacity-60"
+          className="rounded-lg bg-white px-3 py-1.5 text-xs font-normal text-black hover:bg-neutral-200 disabled:opacity-60"
         >
           {busy ? "Saving…" : "Save"}
         </button>
@@ -308,7 +344,7 @@ function EditProfile({
           type="button"
           onClick={onCancel}
           disabled={busy}
-          className="rounded-lg border border-border/10 px-3 py-1.5 text-xs text-fg/90 hover:bg-surface-2"
+          className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/90 hover:bg-white/[0.06]"
         >
           Cancel
         </button>

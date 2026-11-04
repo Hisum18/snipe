@@ -32,7 +32,7 @@ export async function GET(req: Request) {
     ? "<h1>You're unsubscribed</h1><p>You will no longer receive Snipe job alert emails. You can re-enable them from your dashboard.</p>"
     : "<h1>Invalid link</h1><p>This unsubscribe link is invalid or has expired.</p>";
   return new Response(
-    `<!doctype html><html><body style="font-family:system-ui,sans-serif;max-width:480px;margin:80px auto;padding:0 24px;color:#111">${body}</body></html>`,
+    `<!doctype html><html><body style="font-family:system-ui,sans-serif;max-width:480px;margin:80px auto;padding:0 24px;background:#EEEAE1;color:#202124">${body}</body></html>`,
     { status: ok ? 200 : 400, headers: { "content-type": "text/html; charset=utf-8" } },
   );
 }

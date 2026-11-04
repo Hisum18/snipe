@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { z } from "zod";
 
-import { ArrowRight, Target } from "@/components/icons";
+import { ArrowRight, SnipeLogo } from "@/components/icons";
 
 const emailSchema = z.string().trim().email().max(254);
 
@@ -51,15 +51,15 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-black px-6 text-white selection:bg-white selection:text-black">
+    <div className="flex min-h-dvh items-center justify-center bg-black px-6 text-white">
       <div className="w-full max-w-sm">
         <Link
           href="/"
-          className="mb-8 inline-flex items-center gap-2 text-lg font-bold tracking-tight"
+          className="mb-8 inline-flex items-center gap-2 text-lg font-normal tracking-tight"
         >
-          <Target className="h-5 w-5" /> Snipe
+          <SnipeLogo className="h-6 w-6 text-brand" /> Snipe
         </Link>
-        <h1 className="text-2xl font-bold tracking-tight">Reset your password</h1>
+        <h1 className="text-2xl font-normal tracking-tight">Reset your password</h1>
         <p className="mt-2 text-sm text-neutral-400">
           Enter your email and we&apos;ll send you a link to choose a new password.
         </p>
@@ -76,7 +76,7 @@ export default function ForgotPasswordPage() {
             {status === "error" && (
               <p
                 role="alert"
-                className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
+                className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
               >
                 {message}
               </p>
@@ -89,12 +89,12 @@ export default function ForgotPasswordPage() {
               onChange={(e) => setEmail(e.target.value)}
               disabled={status === "sending"}
               placeholder="you@work.com"
-              className="w-full rounded-xl border border-white/[0.12] bg-white/[0.03] px-4 py-2.5 text-sm outline-none transition-colors placeholder:text-neutral-500 focus:border-white/40"
+              className="w-full rounded-lg border border-white/[0.12] bg-white/[0.03] px-4 py-2.5 text-sm outline-none transition-colors placeholder:text-neutral-500 focus:border-brand"
             />
             <button
               type="submit"
               disabled={status === "sending"}
-              className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-neutral-200 disabled:opacity-60"
+              className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-accent px-4 py-2.5 text-sm font-normal text-accent-foreground transition-colors hover:bg-accent/90 disabled:opacity-60"
             >
               {status === "sending" ? "Sending…" : "Send reset link"}
               {status !== "sending" && <ArrowRight className="h-4 w-4" />}
@@ -103,7 +103,7 @@ export default function ForgotPasswordPage() {
         )}
 
         <p className="mt-6 text-sm text-neutral-400">
-          <Link href="/login" className="font-medium text-white hover:underline">
+          <Link href="/login" className="font-medium text-brand-text hover:underline">
             Back to sign in
           </Link>
         </p>

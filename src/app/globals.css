@@ -3,59 +3,282 @@
 @tailwind utilities;
 
 /* ---------------------------------------------------------------------------
- * Design tokens (dark-first). Values are space-separated RGB channels so
- * Tailwind can apply opacity modifiers via rgb(var(--x) / <alpha-value>).
- * Palette: Indigo primary + Emerald "live" accent (ui-ux-pro-max recommendation),
- * mapped onto Snipe's dark, speed-oriented identity.
+ * Design tokens — Snipe's Carbon + Linen + Racing Red system.
+ *
+ * Three-state pattern: the bare `:root` block is the LIGHT palette.
+ * `@media (prefers-color-scheme: dark)` supplies the dark palette for viewers
+ * on the "system" setting, guarded by `:not([data-theme="light"])` so an
+ * explicit light choice still wins. `[data-theme="dark"]` repeats the dark
+ * palette so the in-app toggle wins regardless of OS preference. The server
+ * stamps `data-theme` from the `snipe-theme` cookie (src/app/layout.tsx), so
+ * there's no flash of the wrong theme.
+ *
+ * Values are space-separated RGB channels so Tailwind can apply opacity
+ * modifiers via rgb(var(--x) / <alpha-value>) — see tailwind.config.ts,
+ * which also remaps the literal `black`/`white`/`neutral-*` classes used
+ * across the app onto these channels. Component code only ever names roles
+ * (brand, accent, selected, accent-2, deep, border, ...), never colors, so a
+ * palette change is an edit here.
+ *
+ * Brand palette: Carbon #202124 · Linen #EEEAE1 · Racing Red #C83A35 ·
+ * Concrete #9B9993.
+ *
+ *            light                        dark
+ *   bg       linen #EEEAE1                carbon #202124
+ *   surface  #F8F6F1 (linen, lifted)      #2A2B2E (carbon, lifted)
+ *   deep     #18191B (footer band)        #18191B
+ *   text     carbon #202124               linen #EEEAE1
+ *   muted    #66645E (concrete, deeper)   concrete #9B9993
+ *   brand    racing red #C83A35           racing red #C83A35
+ *   buttons  racing red, #F8F6F1 label    racing red, #F8F6F1 label
+ *   accent-2 concrete #9B9993             concrete #9B9993
+ *
+ * Accessibility (WCAG AA) — Racing Red is used exactly as specified on
+ * buttons, the S mark, dots, chart lines, indicators and the hero's display
+ * words; the rest needs small derived shades:
+ *   - buttons: red fill with a light-linen label #F8F6F1 (4.7:1; linen
+ *     itself is 4.25:1, just under AA).
+ *   - red small text/links: #B0322E light (5.2:1), #EB6D67 dark (5.3:1) —
+ *     red itself is 4.25:1 on linen and 3.2:1 on carbon (fine for large
+ *     text and UI marks, not body text).
+ *   - selected/active states: their own pair (--selected/--selected-fg),
+ *     a red tint with deepened/lightened red text, 5.0:1 / 5.4:1.
+ *   - secondary text: concrete in dark (5.7:1); #66645E in light, since
+ *     concrete is 2.4:1 on linen (decorative there).
+ *   - errors: oxblood #8E1F2A / coral #F59A8E, kept apart from racing red.
+ *
+ * `.inverse` (below) gives any element the dark palette in both themes:
+ * the app sidebar, the footer band, the featured plan, the sign-in panel,
+ * tooltips and popovers.
  * ------------------------------------------------------------------------- */
 :root {
+  color-scheme: light;
+
+  /* Foundation */
+  --bg: 238 234 225; /* #EEEAE1 linen */
+  --surface: 248 246 241; /* #F8F6F1 — cards, a lift of linen */
+  --deep: 24 25 27; /* #18191B — footer band, dark sections */
+  --fg: 32 33 36; /* #202124 carbon — 13.4:1 on bg */
+  --muted: 102 100 94; /* #66645E — 4.9:1 on bg */
+  --border: 221 217 207; /* #DDD9CF */
+  --border-strong: 201 196 184; /* #C9C4B8 — outlines on buttons/inputs */
+
+  /* Brand */
+  --brand: 200 58 53; /* #C83A35 racing red — marks, lines, display text */
+  --brand-text: 176 50 46; /* #B0322E — red for small text/links, 5.2:1 */
+  --brand-fill: 200 58 53; /* button fill */
+  --brand-ink: 248 246 241; /* light-linen label on red — 4.7:1 */
+  --selected: 233 209 201; /* #E9D1C9 — red tint on linen */
+  --selected-fg: 160 45 41; /* #A02D29 — 5.0:1 on the tint */
+  --accent-2: 155 153 147; /* #9B9993 concrete */
+  --accent-2-ink: 32 33 36; /* label on concrete (avatars) — 5.7:1 */
+
+  /* Functional */
+  --destructive: 142 31 42; /* #8E1F2A oxblood */
+  --destructive-ink: 238 234 225;
+  --warning: 150 105 20;
+  --ring: var(--brand);
+  --live: var(--brand);
+  --shadow: 32 33 36; /* carbon-tinted shadows */
+
+  /* The hero's display words ("the flood."): racing red, no marker. */
+  --hl-fg: 200 58 53;
+  --hl-mark: 200 58 53;
+  --hl-mark-size: 0;
+
+  /* Aliases — each resolves to the palette above */
+  --surface-2: 248 246 241;
+  --primary: 32 33 36;
+  --primary-bright: 32 33 36;
+  --raised: 248 246 241; /* selected segment in a segmented control */
+
+  /* Neutral ramp (Tailwind's black/white/neutral-* literals remap here):
+     200-300 text, 400-500 secondary text, 600-700 large/decorative text,
+     900-950 surface. */
+  --n-200: 32 33 36;
+  --n-300: 32 33 36;
+  --n-400: 102 100 94;
+  --n-500: 102 100 94;
+  --n-600: 133 131 125;
+  --n-700: 133 131 125;
+  --n-900: 248 246 241;
+  --n-950: 248 246 241;
+
+  --header-h: 72px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --bg: 32 33 36; /* #202124 carbon */
+    --surface: 42 43 46; /* #2A2B2E — cards, lifted from carbon */
+    --deep: 24 25 27; /* #18191B — footer band, dark sections */
+    --fg: 238 234 225; /* #EEEAE1 linen — 13.4:1 on bg */
+    --muted: 155 153 147; /* #9B9993 concrete — 5.7:1 on bg */
+    --border: 54 55 58; /* #36373A */
+    --border-strong: 71 72 75; /* #47484B */
+
+    --brand: 200 58 53; /* #C83A35 racing red — marks, lines, display text */
+    --brand-text: 235 109 103; /* #EB6D67 — red for small text/links, 5.3:1 */
+    --brand-fill: 200 58 53; /* racing-red buttons in both themes */
+    --brand-ink: 248 246 241; /* light-linen label on red — 4.7:1 */
+    --selected: 59 37 39; /* #3B2527 — red tint on carbon */
+    --selected-fg: 240 127 121; /* #F07F79 — 5.4:1 on the tint */
+    --accent-2: 155 153 147; /* #9B9993 concrete */
+
+    --destructive: 245 154 142; /* #F59A8E */
+    --destructive-ink: 32 33 36;
+    --warning: 222 170 80;
+    --shadow: 0 0 0;
+
+    --hl-fg: 200 58 53;
+    --hl-mark-size: 0;
+
+    --surface-2: 42 43 46;
+    --primary: 238 234 225;
+    --primary-bright: 238 234 225;
+    --raised: 54 55 58; /* #36373A */
+
+    --n-200: 238 234 225;
+    --n-300: 238 234 225;
+    --n-400: 155 153 147;
+    --n-500: 155 153 147;
+    --n-600: 127 125 120;
+    --n-700: 127 125 120;
+    --n-900: 42 43 46;
+    --n-950: 42 43 46;
+  }
+}
+
+:root[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: 7 10 18; /* #070A12 deep background */
-  --surface: 17 22 36; /* #111624 card */
-  --surface-2: 25 31 49; /* #191F31 elevated */
-  --fg: 231 235 245; /* primary text */
-  --muted: 156 165 186; /* secondary text (>= 4.5:1 on --bg) */
-  --border: 255 255 255; /* used at low alpha */
+  --bg: 32 33 36; /* #202124 carbon */
+  --surface: 42 43 46; /* #2A2B2E — cards, lifted from carbon */
+  --deep: 24 25 27; /* #18191B — footer band, dark sections */
+  --fg: 238 234 225; /* #EEEAE1 linen — 13.4:1 on bg */
+  --muted: 155 153 147; /* #9B9993 concrete — 5.7:1 on bg */
+  --border: 54 55 58; /* #36373A */
+  --border-strong: 71 72 75; /* #47484B */
 
-  --primary: 99 102 241; /* indigo #6366F1 */
-  --primary-bright: 129 140 248; /* #818CF8 */
-  --accent: 16 185 129; /* emerald #10B981 (live / new job) */
-  --accent-bright: 52 211 153; /* #34D399 */
-  --warning: 245 158 11; /* amber #F59E0B */
-  --destructive: 244 63 94; /* rose #F43B5E */
+  --brand: 200 58 53; /* #C83A35 racing red — marks, lines, display text */
+  --brand-text: 235 109 103; /* #EB6D67 — red for small text/links, 5.3:1 */
+  --brand-fill: 200 58 53; /* racing-red buttons in both themes */
+  --brand-ink: 248 246 241; /* light-linen label on red — 4.7:1 */
+  --selected: 59 37 39; /* #3B2527 — red tint on carbon */
+  --selected-fg: 240 127 121; /* #F07F79 — 5.4:1 on the tint */
+  --accent-2: 155 153 147; /* #9B9993 concrete */
 
-  --ring: 129 140 248; /* focus ring — bright indigo for dark bg */
+  --destructive: 245 154 142; /* #F59A8E */
+  --destructive-ink: 32 33 36;
+  --warning: 222 170 80;
+  --shadow: 0 0 0;
 
-  --header-h: 68px;
+  --hl-fg: 200 58 53;
+  --hl-mark-size: 0;
+
+  --surface-2: 42 43 46;
+  --primary: 238 234 225;
+  --primary-bright: 238 234 225;
+  --raised: 54 55 58; /* #36373A */
+
+  --n-200: 238 234 225;
+  --n-300: 238 234 225;
+  --n-400: 155 153 147;
+  --n-500: 155 153 147;
+  --n-600: 127 125 120;
+  --n-700: 127 125 120;
+  --n-900: 42 43 46;
+  --n-950: 42 43 46;
+}
+
+/* Carbon "inverse" regions: any element with `.inverse` (and everything in
+   it) uses the dark palette in both themes. Components inside need no
+   special classes; they read the same tokens. */
+.inverse {
+  color-scheme: dark;
+  color: rgb(var(--fg));
+
+  --bg: 32 33 36; /* #202124 carbon */
+  --surface: 42 43 46; /* #2A2B2E — cards, lifted from carbon */
+  --deep: 24 25 27; /* #18191B — footer band, dark sections */
+  --fg: 238 234 225; /* #EEEAE1 linen — 13.4:1 on bg */
+  --muted: 155 153 147; /* #9B9993 concrete — 5.7:1 on bg */
+  --border: 54 55 58; /* #36373A */
+  --border-strong: 71 72 75; /* #47484B */
+
+  --brand: 200 58 53; /* #C83A35 racing red — marks, lines, display text */
+  --brand-text: 235 109 103; /* #EB6D67 — red for small text/links, 5.3:1 */
+  --brand-fill: 200 58 53; /* racing-red buttons in both themes */
+  --brand-ink: 248 246 241; /* light-linen label on red — 4.7:1 */
+  --selected: 59 37 39; /* #3B2527 — red tint on carbon */
+  --selected-fg: 240 127 121; /* #F07F79 — 5.4:1 on the tint */
+  --accent-2: 155 153 147; /* #9B9993 concrete */
+
+  --destructive: 245 154 142; /* #F59A8E */
+  --destructive-ink: 32 33 36;
+  --warning: 222 170 80;
+  --shadow: 0 0 0;
+
+  --hl-fg: 200 58 53;
+  --hl-mark-size: 0;
+
+  --surface-2: 42 43 46;
+  --primary: 238 234 225;
+  --primary-bright: 238 234 225;
+  --raised: 54 55 58; /* #36373A */
+
+  --n-200: 238 234 225;
+  --n-300: 238 234 225;
+  --n-400: 155 153 147;
+  --n-500: 155 153 147;
+  --n-600: 127 125 120;
+  --n-700: 127 125 120;
+  --n-900: 42 43 46;
+  --n-950: 42 43 46;
 }
 
 @layer base {
   * {
-    border-color: rgb(var(--border) / 0.08);
+    border-color: rgb(var(--border));
   }
 
   html {
+    /* Large displays: scale the whole UI — every rem-based font size,
+       spacing value and container width — up smoothly from 1600px-wide
+       viewports, reaching 125% around 2600px, so the site fills big monitors
+       instead of sitting small in the middle. Laptops, tablets and phones
+       (under ~1600px) keep the browser default (100% = usually 16px).
+       Percent bounds respect a user's own default font-size setting. */
+    font-size: clamp(100%, 0.4vw + 0.6rem, 125%);
     scroll-behavior: smooth;
     /* Keep focused controls clear of the sticky header (WCAG 2.2 focus-not-obscured). */
     scroll-padding-top: calc(var(--header-h) + 12px);
   }
 
   body {
-    background: radial-gradient(
-        1100px 560px at 50% -12%,
-        rgb(var(--primary) / 0.14) 0%,
-        transparent 60%
-      ),
-      rgb(var(--bg));
+    background: rgb(var(--bg));
     color: rgb(var(--fg));
     min-height: 100dvh;
-    font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
   }
 
-  /* Single, consistent visible focus ring for keyboard users everywhere. */
+  /* Headings are Space Grotesk; body is Inter (font-sans on <body>);
+     timestamps/labels opt into JetBrains Mono via font-mono. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* Single, consistent visible focus ring for keyboard users everywhere, in
+     the brand color (well over 3:1 against both backgrounds). */
   :focus-visible {
     outline: 2px solid rgb(var(--ring));
     outline-offset: 2px;
@@ -66,7 +289,7 @@
   }
 
   ::selection {
-    background: rgb(var(--primary) / 0.35);
+    background: rgb(var(--brand) / 0.25);
     color: rgb(var(--fg));
   }
 
@@ -111,65 +334,55 @@
       transform: scale(0.82);
     }
   }
+  /* Live/status dot — a 6px pulsing dot in the brand color. */
   .live-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: rgb(var(--live));
     animation: pulse-dot 1.8s ease-in-out infinite;
   }
 
-  /* Intro reveal — content rises like a tide coming in, on-theme for
-     "apply before the flood". Staggered per element; disabled under
-     reduced-motion below. */
-  @keyframes flood-rise {
-    0% {
+  /* Intro reveal — short and mechanical (0.15-0.2s, no bounce). Staggered
+     per element via inline animation-delay; disabled under reduced-motion
+     below. */
+  @keyframes enter {
+    from {
       opacity: 0;
-      transform: translateY(42px);
+      transform: translateY(4px);
     }
-    60% {
-      opacity: 1;
-    }
-    100% {
+    to {
       opacity: 1;
       transform: translateY(0);
     }
   }
-  .animate-flood-rise {
-    animation: flood-rise 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  .animate-enter {
+    animation: enter 0.2s cubic-bezier(0.4, 0, 0.2, 1) both;
   }
 
-  /* Flowing-water shimmer for the "flood" wordmark. */
-  @keyframes flood-flow {
-    to {
-      background-position: 200% center;
-    }
-  }
-  .flood-text {
-    background-image: linear-gradient(
-      110deg,
-      #ffffff 0%,
-      #7c7c7c 25%,
-      #ffffff 50%,
-      #7c7c7c 75%,
-      #ffffff 100%
-    );
-    background-size: 200% auto;
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    animation: flood-flow 6s linear infinite;
+  /* Accent words in a display headline (the hero's "the flood."): a solid
+     highlighter mark behind the bottom of the text in light mode, plain
+     accent-colored text in dark mode — see the --hl-* tokens. The mark is
+     a single solid color (background-image only so it can be sized). */
+  .headline-accent {
+    color: rgb(var(--hl-fg));
+    background-image: linear-gradient(rgb(var(--hl-mark, 0 0 0 / 0)), rgb(var(--hl-mark, 0 0 0 / 0)));
+    background-repeat: no-repeat;
+    background-size: 100% var(--hl-mark-size);
+    background-position: 0 86%;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
   }
 
-  /* Liquid-glass surface for the floating navbar: a bright specular top edge,
-     a faint inner rim, a soft drop shadow, and a top-lit gradient tint. Pair
-     with backdrop-blur + backdrop-saturate so the background refracts through. */
-  .nav-glass {
-    background: linear-gradient(
-      to bottom,
-      rgb(255 255 255 / 0.14),
-      rgb(255 255 255 / 0.04)
-    );
+  /* Standard card: surface fill, warm border, soft warm shadow (no gradient,
+     no blur). Used by every app page's sections. */
+  .card-glass {
+    background: rgb(var(--surface));
+    border: 1px solid rgb(var(--border));
     box-shadow:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.4),
-      inset 0 0 0 1px rgb(255 255 255 / 0.06),
-      0 12px 32px -10px rgb(0 0 0 / 0.6);
+      0 1px 2px rgb(var(--shadow) / 0.05),
+      0 10px 28px -20px rgb(var(--shadow) / 0.22);
   }
 }
 

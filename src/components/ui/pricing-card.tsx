@@ -33,6 +33,9 @@ export interface PricingPlan {
   buttonLabel: string;
   /** Where the CTA points (sign-up for logged-out, dashboard for logged-in). */
   href: string;
+  /** Signed-in + paid tier: the CTA opens Snipe's checkout for this plan and
+   *  the selected billing cycle in a new tab, instead of `href`. */
+  checkout?: boolean;
   /** Headline features shown on the card itself. */
   features: string[];
 }
@@ -70,13 +73,13 @@ export function PricingSection({
   const [cycle, setCycle] = React.useState<BillingCycle>("annually");
 
   return (
-    <div className="mx-auto w-full max-w-content px-4 py-14 text-white selection:bg-white selection:text-black sm:px-6 md:py-20">
+    <div className="mx-auto w-full max-w-6xl px-4 py-14 text-white sm:px-6 md:py-20">
       {/* Header */}
       <header
-        className="animate-flood-rise mb-10 text-center"
+        className="animate-enter mb-10 text-center"
         style={{ animationDelay: "40ms" }}
       >
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+        <h1 className="text-3xl font-normal tracking-tight sm:text-4xl">
           Pricing that keeps up{" "}
           <span className="text-neutral-500">with your search.</span>
         </h1>
@@ -88,7 +91,7 @@ export function PricingSection({
 
       {/* Billing toggle */}
       <div
-        className="animate-flood-rise mb-10 mt-2 flex justify-center"
+        className="animate-enter mb-10 mt-2 flex justify-center"
         style={{ animationDelay: "140ms" }}
       >
         <ToggleGroup
@@ -103,17 +106,17 @@ export function PricingSection({
           <ToggleGroupItem
             value="monthly"
             aria-label="Monthly billing"
-            className="h-9 rounded-md px-6 text-sm font-medium text-neutral-400 hover:bg-white/[0.05] hover:text-white data-[state=on]:bg-white data-[state=on]:text-black data-[state=on]:shadow-sm"
+            className="h-9 rounded-md px-6 text-sm font-normal text-neutral-400 hover:bg-white/[0.05] hover:text-white data-[state=on]:bg-surface data-[state=on]:text-brand-text data-[state=on]:shadow-card"
           >
             Monthly
           </ToggleGroupItem>
           <ToggleGroupItem
             value="annually"
             aria-label="Annual billing"
-            className="relative h-9 rounded-md px-6 text-sm font-medium text-neutral-400 hover:bg-white/[0.05] hover:text-white data-[state=on]:bg-white data-[state=on]:text-black data-[state=on]:shadow-sm"
+            className="relative h-9 rounded-md px-6 text-sm font-normal text-neutral-400 hover:bg-white/[0.05] hover:text-white data-[state=on]:bg-surface data-[state=on]:text-brand-text data-[state=on]:shadow-card"
           >
             Annually
-            <span className="absolute -right-3 -top-3 z-10 whitespace-nowrap rounded-full bg-neutral-900 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-white ring-1 ring-white/20">
+            <span className="absolute -right-3 -top-3 z-10 whitespace-nowrap rounded-md bg-accent px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-accent-foreground">
               Save {annualDiscountPercent}%
             </span>
           </ToggleGroupItem>
@@ -124,7 +127,7 @@ export function PricingSection({
       <section
         aria-label="Plans"
         style={{ animationDelay: "240ms" }}
-        className="animate-flood-rise grid gap-6 md:grid-cols-3 md:gap-5 lg:gap-6"
+        className="animate-enter grid gap-6 md:grid-cols-3 md:gap-5 lg:gap-6"
       >
         {plans.map((plan) => {
           const isFeatured = plan.isPopular;
@@ -139,23 +142,23 @@ export function PricingSection({
               className={cn(
                 "flex flex-col transition-colors duration-300",
                 isFeatured
-                  ? "relative overflow-hidden border-white/[0.25] bg-black shadow-2xl md:scale-[1.02]"
-                  : "border-white/[0.08] bg-[#050505] hover:border-white/[0.15]",
+                  ? "inverse relative overflow-hidden border-brand/60 bg-surface shadow-float md:scale-[1.02]"
+                  : "border-white/[0.08] bg-surface shadow-card hover:border-white/[0.15]",
               )}
             >
               {isFeatured && (
                 <span
                   aria-hidden="true"
-                  className="absolute inset-x-0 top-0 h-px w-full bg-white"
+                  className="absolute inset-x-0 top-0 h-[3px] w-full bg-brand"
                 />
               )}
               <CardHeader className="p-6 pb-4">
                 <div className="flex items-start justify-between gap-3">
-                  <CardTitle className="text-2xl font-semibold text-white">
+                  <CardTitle className="text-2xl font-normal text-white">
                     {plan.name}
                   </CardTitle>
                   {isFeatured && (
-                    <span className="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-black">
+                    <span className="shrink-0 rounded-md bg-selected px-2.5 py-1 text-[11px] font-medium uppercase tracking-widest text-selected-foreground">
                       Most popular
                     </span>
                   )}
@@ -165,7 +168,7 @@ export function PricingSection({
                 </CardDescription>
                 <div className="mt-4">
                   <p className="flex items-baseline gap-1">
-                    <span className="text-4xl font-medium tracking-tighter tabular">
+                    <span className="text-4xl font-normal tracking-tighter tabular">
                       ${price}
                     </span>
                     <span className="text-base font-normal text-neutral-500">
@@ -189,7 +192,7 @@ export function PricingSection({
               </CardHeader>
 
               <CardContent className="flex-grow p-6 pt-0">
-                <h4 className="mb-2 mt-2 text-sm font-medium text-neutral-300">
+                <h4 className="mb-2 mt-2 text-sm font-normal text-neutral-300">
                   Includes:
                 </h4>
                 <ul className="space-y-2.5">
@@ -198,7 +201,7 @@ export function PricingSection({
                       <Check
                         className={cn(
                           "mt-0.5 h-4 w-4 shrink-0",
-                          isFeatured ? "text-white" : "text-neutral-500",
+                          isFeatured ? "text-brand" : "text-neutral-500",
                         )}
                       />
                       <span className="text-sm text-neutral-300">{feature}</span>
@@ -214,14 +217,25 @@ export function PricingSection({
                   className={cn(
                     "w-full gap-2",
                     isFeatured
-                      ? "bg-white text-black hover:bg-neutral-200"
-                      : "border border-white/[0.12] bg-transparent text-white hover:bg-white/[0.05]",
+                      ? "bg-accent text-accent-foreground hover:bg-accent/90"
+                      : "border border-white/[0.15] bg-transparent text-white hover:border-brand hover:text-brand-text",
                   )}
                 >
-                  <Link href={plan.href}>
-                    {plan.buttonLabel}
-                    {isFeatured && <ArrowRight className="h-4 w-4" />}
-                  </Link>
+                  {plan.checkout ? (
+                    <a
+                      href={`/checkout?plan=${plan.id}&interval=${cycle === "monthly" ? "monthly" : "annual"}`}
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      {plan.buttonLabel}
+                      {isFeatured && <ArrowRight className="h-4 w-4" />}
+                    </a>
+                  ) : (
+                    <Link href={plan.href}>
+                      {plan.buttonLabel}
+                      {isFeatured && <ArrowRight className="h-4 w-4" />}
+                    </Link>
+                  )}
                 </Button>
               </CardFooter>
             </Card>
@@ -233,9 +247,9 @@ export function PricingSection({
       <section
         aria-label="Feature comparison"
         style={{ animationDelay: "360ms" }}
-        className="animate-flood-rise mt-16"
+        className="animate-enter mt-16"
       >
-        <h2 className="mb-6 text-center text-2xl font-semibold tracking-tight text-white">
+        <h2 className="mb-6 text-center text-2xl font-normal tracking-tight text-white">
           Compare every feature
         </h2>
         <div className="overflow-x-auto rounded-xl border border-white/[0.08]">
@@ -244,7 +258,7 @@ export function PricingSection({
               <tr className="bg-white/[0.03]">
                 <th
                   scope="col"
-                  className="w-[220px] whitespace-nowrap px-6 py-4 text-left text-sm font-semibold text-neutral-400"
+                  className="w-[220px] whitespace-nowrap px-6 py-4 text-left text-sm font-normal text-neutral-400"
                 >
                   Feature
                 </th>
@@ -253,7 +267,7 @@ export function PricingSection({
                     key={plan.id}
                     scope="col"
                     className={cn(
-                      "whitespace-nowrap px-6 py-4 text-center text-sm font-semibold",
+                      "whitespace-nowrap px-6 py-4 text-center text-sm font-normal",
                       plan.isPopular
                         ? "bg-white/[0.06] text-white"
                         : "text-neutral-300",
@@ -267,7 +281,7 @@ export function PricingSection({
             <tbody className="divide-y divide-white/[0.06]">
               {comparison.map((row, i) => (
                 <tr key={row.label} className={cn(i % 2 === 1 && "bg-white/[0.02]")}>
-                  <td className="whitespace-nowrap px-6 py-3 text-left text-sm font-medium text-neutral-200">
+                  <td className="whitespace-nowrap px-6 py-3 text-left text-sm font-normal text-neutral-200">
                     {row.label}
                   </td>
                   {plans.map((plan) => (

@@ -195,16 +195,17 @@ async function sendAlertEmail(user: User, items: JobItem[]): Promise<void> {
   const list = items
     .map((it) => {
       const loc = it.location ? ` · ${escapeHtml(it.location)}` : "";
-      return `<li style="margin:0 0 10px"><a href="${escapeHtml(it.url)}" style="color:#7aa2ff;text-decoration:none;font-weight:600">${escapeHtml(it.title)}</a><br><span style="color:#aab3c9;font-size:13px">${escapeHtml(it.companyName)}${loc}</span></li>`;
+      return `<li style="margin:0 0 10px"><a href="${escapeHtml(it.url)}" style="color:#B0322E;text-decoration:none;font-weight:600">${escapeHtml(it.title)}</a><br><span style="color:#66645E;font-size:13px">${escapeHtml(it.companyName)}${loc}</span></li>`;
     })
     .join("");
 
   const count = items.length;
-  const html = `<!doctype html><html><body style="font-family:system-ui,sans-serif;background:#0b0f19;color:#e8ecf7;padding:24px">
-  <div style="max-width:520px;margin:0 auto;background:#131826;border-radius:12px;padding:28px">
-    <h1 style="font-size:18px;margin:0 0 16px">${count} new job${count === 1 ? "" : "s"} matched your alerts</h1>
+  const html = `<!doctype html><html><body style="font-family:system-ui,sans-serif;background:#EEEAE1;color:#202124;padding:24px">
+  <div style="max-width:520px;margin:0 auto;background:#F8F6F1;border:1px solid #DDD9CF;border-radius:12px;padding:28px">
+    <p style="margin:0 0 16px;font-size:17px;font-weight:700;letter-spacing:-0.01em;color:#C83A35">Snipe</p>
+    <h1 style="font-size:18px;margin:0 0 16px;color:#202124">${count} new job${count === 1 ? "" : "s"} matched your alerts</h1>
     <ul style="list-style:none;padding:0;margin:0">${list}</ul>
-    <p style="color:#6b7488;font-size:12px;margin-top:24px">You're receiving this because you watch these companies on Snipe. <a href="${escapeHtml(unsub)}" style="color:#6b7488">Unsubscribe</a>.</p>
+    <p style="color:#85837D;font-size:12px;margin-top:24px">You're receiving this because you watch these companies on Snipe. <a href="${escapeHtml(unsub)}" style="color:#85837D">Unsubscribe</a>.</p>
   </div></body></html>`;
 
   const text =

@@ -56,8 +56,8 @@ export function SettingsSection({
       {/* Email toggle */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <div className="text-sm font-medium">Email alerts</div>
-          <div className="text-xs text-muted">
+          <div className="text-sm font-normal">Email alerts</div>
+          <div className="text-xs text-neutral-400">
             Job matches are emailed to you.
           </div>
         </div>
@@ -73,11 +73,11 @@ export function SettingsSection({
             if (!ok) setEmailOn(!next); // revert on failure
           }}
           className={`relative h-6 w-11 rounded-full transition ${
-            emailOn ? "bg-primary" : "bg-fg/15"
+            emailOn ? "bg-accent" : "bg-white/20"
           }`}
         >
           <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition ${
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-surface shadow-card transition ${
               emailOn ? "left-[22px]" : "left-0.5"
             }`}
           />
@@ -87,14 +87,14 @@ export function SettingsSection({
       {/* Discord webhook */}
       <div>
         <div className="mb-1 flex items-center gap-2">
-          <span className="text-sm font-medium">Discord webhook</span>
+          <span className="text-sm font-normal">Discord webhook</span>
           {!canUseDiscord && (
-            <span className="rounded bg-fg/[0.06] px-1.5 py-0.5 text-[11px] text-muted">
+            <span className="rounded bg-white/[0.08] px-1.5 py-0.5 text-[11px] text-neutral-400">
               Pro &amp; Max
             </span>
           )}
         </div>
-        <p className="mb-2 text-xs text-muted">
+        <p className="mb-2 text-xs text-neutral-400">
           Paste a Discord channel webhook URL to also receive alerts there.
         </p>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -104,19 +104,19 @@ export function SettingsSection({
             onChange={(e) => setWebhook(e.target.value)}
             placeholder="https://discord.com/api/webhooks/…"
             disabled={busy || !canUseDiscord}
-            className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary disabled:opacity-50"
+            className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm outline-none focus:border-brand disabled:opacity-50"
           />
           <button
             type="button"
             disabled={busy || !canUseDiscord}
             onClick={() => patch({ discordWebhookUrl: webhook.trim() || null })}
-            className="shrink-0 rounded-lg border border-border/15 px-4 py-2 text-sm hover:bg-surface-2 disabled:opacity-50"
+            className="shrink-0 rounded-lg border border-white/15 px-4 py-2 text-sm hover:bg-white/[0.06] disabled:opacity-50"
           >
             Save
           </button>
         </div>
         {!isMax && canUseDiscord && (
-          <p className="mt-1 text-xs text-muted">
+          <p className="mt-1 text-xs text-neutral-400">
             SMS alerts are available on Max.
           </p>
         )}
@@ -125,8 +125,8 @@ export function SettingsSection({
       {/* SMS (Max only) */}
       {isMax && <PhoneVerify phoneE164={phoneE164} phoneVerified={phoneVerified} />}
 
-      {error && <p className="text-sm text-rose-300">{error}</p>}
-      {saved && !error && <p className="text-sm text-emerald-300">Saved.</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
+      {saved && !error && <p className="text-sm text-neutral-300">Saved.</p>}
     </div>
   );
 }
@@ -196,7 +196,14 @@ function PhoneVerify({
     setError("");
     try {
       const res = await fetch("/api/settings/phone", { method: "DELETE" });
-      if (res.ok) router.refresh();
+      if (res.ok) {
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Couldn't remove that number. Try again.");
+      }
+    } catch {
+      setError("Network error.");
     } finally {
       setBusy(false);
     }
@@ -205,9 +212,9 @@ function PhoneVerify({
   return (
     <div>
       <div className="mb-1 flex items-center gap-2">
-        <span className="text-sm font-medium">SMS alerts</span>
+        <span className="text-sm font-normal">SMS alerts</span>
         {phoneVerified && (
-          <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[11px] text-emerald-300">
+          <span className="rounded bg-white/10 px-1.5 py-0.5 text-[11px] text-neutral-300">
             verified
           </span>
         )}
@@ -215,12 +222,12 @@ function PhoneVerify({
 
       {phoneVerified ? (
         <div className="flex items-center justify-between gap-3">
-          <span className="text-sm text-fg/90">{phoneE164}</span>
+          <span className="text-sm text-white/90">{phoneE164}</span>
           <button
             type="button"
             onClick={removePhone}
             disabled={busy}
-            className="rounded-lg border border-border/15 px-3 py-1.5 text-sm hover:bg-surface-2 disabled:opacity-50"
+            className="rounded-lg border border-white/15 px-3 py-1.5 text-sm hover:bg-white/[0.06] disabled:opacity-50"
           >
             Remove
           </button>
@@ -234,14 +241,14 @@ function PhoneVerify({
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+14155551234"
               disabled={busy || stage === "code"}
-              className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary disabled:opacity-50"
+              className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm outline-none focus:border-brand disabled:opacity-50"
             />
             {stage === "idle" && (
               <button
                 type="button"
                 onClick={sendCode}
                 disabled={busy}
-                className="shrink-0 rounded-lg border border-border/15 px-4 py-2 text-sm hover:bg-surface-2 disabled:opacity-50"
+                className="shrink-0 rounded-lg border border-white/15 px-4 py-2 text-sm hover:bg-white/[0.06] disabled:opacity-50"
               >
                 Send code
               </button>
@@ -255,13 +262,13 @@ function PhoneVerify({
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="6-digit code"
                 disabled={busy}
-                className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
+                className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm outline-none focus:border-brand"
               />
               <button
                 type="button"
                 onClick={verify}
                 disabled={busy}
-                className="shrink-0 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-bright disabled:opacity-60"
+                className="shrink-0 rounded-lg bg-accent px-4 py-2 text-sm font-normal text-accent-foreground hover:bg-accent/90 disabled:opacity-60"
               >
                 Verify
               </button>
@@ -269,7 +276,7 @@ function PhoneVerify({
           )}
         </div>
       )}
-      {error && <p className="mt-1 text-sm text-rose-300">{error}</p>}
+      {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
     </div>
   );
 }
@@ -301,9 +308,9 @@ export function DangerZone() {
   }
 
   return (
-    <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-6">
-      <h2 className="text-lg font-semibold text-rose-200">Delete account</h2>
-      <p className="mt-1 text-sm text-muted">
+    <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6">
+      <h2 className="text-lg font-normal text-destructive">Delete account</h2>
+      <p className="mt-1 text-sm text-neutral-400">
         Permanently deletes your account, watched companies, profiles, and alert
         history. This cannot be undone.
       </p>
@@ -311,7 +318,7 @@ export function DangerZone() {
         <button
           type="button"
           onClick={() => setConfirming(true)}
-          className="mt-4 rounded-lg border border-rose-500/40 px-4 py-2 text-sm text-rose-200 hover:bg-rose-500/10"
+          className="mt-4 rounded-lg border border-destructive/40 px-4 py-2 text-sm text-destructive hover:bg-destructive/10"
         >
           Delete my account
         </button>
@@ -321,7 +328,7 @@ export function DangerZone() {
             type="button"
             onClick={del}
             disabled={busy}
-            className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-500 disabled:opacity-60"
+            className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-60"
           >
             {busy ? "Deleting…" : "Yes, permanently delete"}
           </button>
@@ -329,13 +336,13 @@ export function DangerZone() {
             type="button"
             onClick={() => setConfirming(false)}
             disabled={busy}
-            className="rounded-lg border border-border/15 px-4 py-2 text-sm hover:bg-surface-2"
+            className="rounded-lg border border-white/15 px-4 py-2 text-sm hover:bg-white/[0.06]"
           >
             Cancel
           </button>
         </div>
       )}
-      {error && <p className="mt-3 text-sm text-rose-300">{error}</p>}
+      {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
     </div>
   );
 }

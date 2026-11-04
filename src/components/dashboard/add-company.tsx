@@ -10,11 +10,13 @@ export function AddCompany() {
   const [location, setLocation] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [added, setAdded] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError("");
+    setAdded(false);
     try {
       const res = await fetch("/api/watches", {
         method: "POST",
@@ -36,6 +38,7 @@ export function AddCompany() {
       setUrl("");
       setKeywords("");
       setLocation("");
+      setAdded(true);
       router.refresh();
     } catch {
       setError("Network error. Try again.");
@@ -47,7 +50,7 @@ export function AddCompany() {
   return (
     <form onSubmit={submit} className="space-y-3">
       <div>
-        <label htmlFor="careers-url" className="mb-1 block text-sm text-fg/90">
+        <label htmlFor="careers-url" className="mb-1 block text-sm text-white/90">
           Careers URL
         </label>
         <input
@@ -58,9 +61,9 @@ export function AddCompany() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           disabled={busy}
-          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
+          className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm outline-none focus:border-brand"
         />
-        <p className="mt-1 text-xs text-muted">
+        <p className="mt-1 text-xs text-neutral-400">
           Greenhouse, Lever, or Ashby. We detect the provider automatically.
         </p>
       </div>
@@ -71,7 +74,7 @@ export function AddCompany() {
           value={keywords}
           onChange={(e) => setKeywords(e.target.value)}
           disabled={busy}
-          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
+          className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm outline-none focus:border-brand"
         />
         <input
           aria-label="Location filter"
@@ -79,14 +82,15 @@ export function AddCompany() {
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           disabled={busy}
-          className="w-full rounded-lg border border-border/10 bg-surface-2/60 px-3 py-2 text-sm outline-none focus:border-primary"
+          className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm outline-none focus:border-brand"
         />
       </div>
-      {error && <p className="text-sm text-rose-300">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
+      {added && !error && <p className="text-sm text-neutral-300">Added.</p>}
       <button
         type="submit"
         disabled={busy}
-        className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-bright disabled:opacity-60"
+        className="rounded-lg bg-accent px-4 py-2 text-sm font-normal text-accent-foreground hover:bg-accent/90 disabled:opacity-60"
       >
         {busy ? "Adding…" : "Watch company"}
       </button>

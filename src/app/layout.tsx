@@ -1,13 +1,23 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { cookies } from "next/headers";
 
 import "./globals.css";
 
 import { Navbar } from "@/components/navbar/navbar";
+import { ThemeProvider } from "@/components/theme/theme-provider";
+import { limitsFor } from "@/config/plans";
 import { getCurrentUser } from "@/lib/auth/session";
 
 // Self-hosted by next/font (no external stylesheet), so CSP stays font-src 'self'.
-const sans = Plus_Jakarta_Sans({
+// Space Grotesk for headings (applied to h1-h4 in globals.css), Inter for
+// body, JetBrains Mono for timestamps and labels.
+const display = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+});
+const sans = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
@@ -30,12 +40,27 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
+  const [user, cookieStore] = await Promise.all([getCurrentUser(), cookies()]);
+  const planLabel = user ? limitsFor(user.plan, user.planStatus).label : undefined;
+  // Theme is read from a cookie server-side and baked straight into the
+  // initial HTML — no flash, and no client bootstrap script needed (every
+  // route here is already dynamically rendered via getCurrentUser() above,
+  // so reading a cookie costs nothing extra). ThemeProvider's toggle writes
+  // this same cookie. Defaults to "dark" (the brand default) for a
+  // first-ever visit with no stored preference.
+  const theme = cookieStore.get("snipe-theme")?.value === "light" ? "light" : "dark";
+
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
-      <body className="min-h-dvh bg-bg font-sans text-fg antialiased">
-        <Navbar authed={!!user} email={user?.email ?? undefined} />
-        {children}
+    <html
+      lang="en"
+      data-theme={theme}
+      className={`${display.variable} ${sans.variable} ${mono.variable}`}
+    >
+      <body className="min-h-dvh bg-black font-sans text-fg antialiased">
+        <ThemeProvider initialTheme={theme}>
+          <Navbar authed={!!user} email={user?.email ?? undefined} planLabel={planLabel} />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

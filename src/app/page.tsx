@@ -1,75 +1,94 @@
 import Link from "next/link";
 
-import { ShaderBg } from "@/components/hero/shader-bg";
-import { ArrowRight, ShieldCheck, Target } from "@/components/icons";
+import { ArrowUpRight } from "@/components/icons";
+import { SiteFooter } from "@/components/site-footer";
+import { DiscordAppIcon, GmailAppIcon, MessagesAppIcon } from "@/components/hero/brand-logos";
+import { HeroIntro } from "@/components/hero/hero-intro";
+
+const ATS_PROVIDERS = ["Greenhouse", "Lever", "Ashby"];
 
 export default function LandingPage() {
   return (
-    <div className="flex min-h-[calc(100dvh-4.5rem)] flex-col bg-black text-white selection:bg-white selection:text-black">
-      {/* Water background covers the whole screen (behind the glass navbar too). */}
-      <ShaderBg />
-      <div
-        className="pointer-events-none fixed inset-0 z-0 bg-black/40"
-        aria-hidden="true"
-      />
-
-      {/* Hero — single centered screen */}
-      <section className="relative z-10 flex flex-1 items-center">
-        <div className="mx-auto flex w-full max-w-2xl flex-col items-center px-6 py-14 text-center">
-          <h1
-            className="animate-flood-rise text-5xl font-extrabold leading-[1.03] tracking-tight sm:text-6xl"
-            style={{ animationDelay: "60ms" }}
-          >
-            Apply before <br />
-            <span className="flood-text">the flood.</span>
-          </h1>
-
-          <p
-            className="animate-flood-rise mt-6 max-w-xl text-lg leading-relaxed text-neutral-400"
-            style={{ animationDelay: "200ms" }}
-          >
-            Snipe watches companies&apos; applicant tracking systems directly and
-            alerts you within minutes of a new posting — so your application
-            lands near the top of the pile, not buried under a thousand others.
-          </p>
-
-          <div
-            className="animate-flood-rise mt-9 flex flex-wrap items-center justify-center gap-3"
-            style={{ animationDelay: "340ms" }}
-          >
-            <Link
-              href="/signup"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-neutral-200"
+    <div className="bg-black text-white">
+      {/* The hero is exactly one screen tall (minus the navbar) on every
+          display: content centered in it, the provider strip along its
+          bottom, and the footer just below the fold. */}
+      <section className="relative flex min-h-[calc(100dvh-var(--header-h))] flex-col overflow-hidden pt-14 sm:pt-20 xl:pt-8">
+        {/* Copy left, product right from xl up; stacked and centered below
+            that, where two columns would shrink the picture too far. */}
+        <div className="relative z-10 mx-auto w-full max-w-content flex-1 px-6 lg:px-10 xl:grid xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center xl:gap-14">
+          <div className="mx-auto max-w-xl text-center xl:mx-0 xl:max-w-[32rem] xl:text-left">
+            <h1
+              className="animate-enter text-balance text-5xl font-semibold leading-[1.02] tracking-[-0.035em] sm:text-7xl xl:text-[4.75rem]"
+              style={{ animationDelay: "40ms" }}
             >
-              Get started <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/pricing"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.15] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/[0.06]"
+              Apply before <span className="headline-accent">the flood.</span>
+            </h1>
+
+            <p
+              className="animate-enter mx-auto mt-7 max-w-xl text-pretty text-lg leading-relaxed text-neutral-400 xl:mx-0"
+              style={{ animationDelay: "100ms" }}
             >
-              See plans &amp; compare
-            </Link>
+              Discover internship opportunities the moment they&apos;re posted.
+              Get notified instantly and apply before everyone else.
+            </p>
+
+            <div
+              className="animate-enter mt-10 flex flex-wrap items-center justify-center gap-3 xl:justify-start"
+              style={{ animationDelay: "160ms" }}
+            >
+              <Link
+                href="/signup"
+                className="group inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-[15px] font-medium text-accent-foreground shadow-card transition-colors hover:bg-accent/90"
+              >
+                Get started free
+                <ArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </Link>
+              <Link
+                href="/how-it-works"
+                className="inline-flex items-center rounded-lg border border-white/15 bg-surface px-6 py-3 text-[15px] font-medium transition-colors hover:border-brand hover:text-brand-text"
+              >
+                See how it works
+              </Link>
+            </div>
+
+            <div
+              className="animate-enter mt-9 flex items-center justify-center gap-3 text-left xl:justify-start"
+              style={{ animationDelay: "220ms" }}
+            >
+              <div className="flex items-center gap-1.5">
+                <DiscordAppIcon className="size-9" />
+                <MessagesAppIcon className="size-9" />
+                <GmailAppIcon className="size-9" />
+              </div>
+              <div className="leading-snug">
+                <p className="text-sm font-medium text-white">Instant alerts, free to start</p>
+                <p className="text-sm text-neutral-500">Discord, SMS &amp; email</p>
+              </div>
+            </div>
           </div>
 
-          <p
-            className="animate-flood-rise mt-7 flex items-center justify-center gap-2 text-xs text-neutral-500"
-            style={{ animationDelay: "460ms" }}
-          >
-            <ShieldCheck className="h-4 w-4 text-neutral-400" />
-            No password. One-time sign-in link. Cancel anytime.
+          {/* Product visual */}
+          <div className="mt-20 flex justify-center lg:mt-24 xl:mt-0 xl:justify-end">
+            <HeroIntro />
+          </div>
+        </div>
+
+        <div className="relative z-10 mx-auto w-full max-w-3xl px-6 pb-10 pt-20 text-center xl:pt-12">
+          <p className="font-mono text-xs uppercase tracking-[0.14em] text-neutral-500">
+            Watches job postings on
           </p>
+          <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-14 gap-y-4">
+            {ATS_PROVIDERS.map((name) => (
+              <li key={name} className="text-2xl font-semibold tracking-tight text-neutral-600">
+                {name}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-white/[0.08] py-6 text-sm text-neutral-500">
-        <div className="mx-auto flex max-w-content flex-col items-center justify-between gap-3 px-6 sm:flex-row">
-          <span className="flex items-center gap-2">
-            <Target className="h-4 w-4 text-neutral-400" />© {new Date().getFullYear()} Snipe
-          </span>
-          <span>Polls public ATS endpoints. Not affiliated with any employer.</span>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
