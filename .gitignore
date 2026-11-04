@@ -33,3 +33,9 @@ yarn-debug.log*
 yarn-error.log*
 .vercel
 *.tsbuildinfo
+
+# Separate standalone project, own git history, not part of the Snipe app
+/landing/
+
+# Local marketing video exports (large binaries), kept out of the repo
+/marketing/

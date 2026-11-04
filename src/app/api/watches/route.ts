@@ -1,4 +1,4 @@
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { companies, watches } from "@/db/schema";
@@ -75,6 +75,9 @@ export async function POST(req: Request) {
   const planCap = limits.maxCompanies ?? HARD_MAX_WATCHES_PER_USER;
   const cap = Math.min(planCap, HARD_MAX_WATCHES_PER_USER);
 
+  // Fast-path check only (not authoritative — see the atomic insert below):
+  // avoids the getOrCreateCompany() network fetch when the user is obviously
+  // already over their cap.
   const countRows = await db
     .select({ value: count() })
     .from(watches)
@@ -104,25 +107,46 @@ export async function POST(req: Request) {
     throw err;
   }
 
-  const inserted = await db
-    .insert(watches)
-    .values({
-      userId: user.id,
-      companyId: company.id,
-      keywordFilters: parsed.data.keywordFilters,
-      locationFilter: parsed.data.locationFilter ?? null,
-    })
-    .onConflictDoNothing()
-    .returning();
+  // Authoritative cap enforcement: the count check above and this insert are
+  // two separate round trips to a driver (neon-http) that doesn't support
+  // interactive transactions, so two concurrent requests could otherwise both
+  // pass the check above and both insert, exceeding the plan cap by one. Doing
+  // the count check and the insert as a single statement closes that window —
+  // the WHERE clause is evaluated against the same snapshot as the insert.
+  const keywordFiltersJson = JSON.stringify(parsed.data.keywordFilters);
+  const insertResult = await db.execute<{ id: string }>(sql`
+    insert into watches (user_id, company_id, keyword_filters, location_filter)
+    select ${user.id}, ${company.id}, ${keywordFiltersJson}::jsonb, ${parsed.data.locationFilter ?? null}
+    where (select count(*) from watches where user_id = ${user.id} and active = true) < ${cap}
+    on conflict (user_id, company_id) do nothing
+    returning id
+  `);
+  const insertedId = insertResult.rows[0]?.id;
 
-  if (!inserted[0]) {
-    return json({ error: "You're already watching this company." }, 409);
+  if (!insertedId) {
+    // No row back means either a duplicate watch (conflict) or the atomic cap
+    // check failed — tell them apart for the right error message.
+    const existing = await db
+      .select({ id: watches.id })
+      .from(watches)
+      .where(and(eq(watches.userId, user.id), eq(watches.companyId, company.id)))
+      .limit(1);
+    if (existing[0]) {
+      return json({ error: "You're already watching this company." }, 409);
+    }
+    return json(
+      {
+        error: `You've reached your plan limit of ${cap} watched companies. Upgrade or remove one.`,
+        code: "PLAN_LIMIT",
+      },
+      403,
+    );
   }
 
   return json(
     {
       watch: {
-        id: inserted[0].id,
+        id: insertedId,
         company: { id: company.id, name: company.name, provider: company.atsProvider },
       },
     },

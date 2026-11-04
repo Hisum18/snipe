@@ -12,6 +12,8 @@ export default tseslint.config(
       "drizzle/**",
       "coverage/**",
       "next-env.d.ts",
+      // Separate standalone project, own lint/build config — see tsconfig.json.
+      "landing/**",
     ],
   },
   js.configs.recommended,

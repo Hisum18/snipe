@@ -53,9 +53,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           Google({
             clientId: process.env.AUTH_GOOGLE_ID,
             clientSecret: process.env.AUTH_GOOGLE_SECRET,
-            // A user who signed up with email+password can also use Google with
-            // the same verified email and land on the same account.
-            allowDangerousEmailAccountLinking: true,
+            // Deliberately NOT allowDangerousEmailAccountLinking. That flag
+            // auto-merges an anonymous Google sign-in into any existing
+            // account with a matching email, which lets an attacker who
+            // pre-registers a victim's email via /api/auth/register (no
+            // ownership verification required to log in) silently take over
+            // the account the real owner lands on later. Auth.js already has
+            // a safe path for the legitimate case: a user who's SIGNED IN
+            // (e.g. via credentials) and then connects Google from Settings
+            // links to their own session's user id, not a bare email match —
+            // see handleLoginOrRegister() in @auth/core. That path needs no
+            // extra config here; it's just this flag that was unsafe.
           }),
         ]
       : []),
@@ -69,13 +77,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!parsed.success) return null;
         const email = parsed.data.email.toLowerCase();
 
-        // Brute-force protection: rate-limit login attempts per IP and per email.
+        // Brute-force protection: rate-limit login attempts per IP and per
+        // email. Fails open on an infra error (e.g. the Redis backend is
+        // unreachable) — same policy as enforceRateLimit() in lib/api.ts —
+        // so a rate-limiter outage degrades to "unthrottled" rather than
+        // taking down login entirely.
         const ip = clientIp(request as unknown as Request);
-        const [ipCheck, emailCheck] = await Promise.all([
-          loginByIp().limit(ip),
-          loginByEmail().limit(email),
-        ]);
-        if (!ipCheck.success || !emailCheck.success) return null;
+        try {
+          const [ipCheck, emailCheck] = await Promise.all([
+            loginByIp().limit(ip),
+            loginByEmail().limit(email),
+          ]);
+          if (!ipCheck.success || !emailCheck.success) return null;
+        } catch (err) {
+          console.error("Login rate limiter unavailable, failing open:", err);
+        }
 
         const rows = await db
           .select()

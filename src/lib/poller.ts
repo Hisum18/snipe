@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
@@ -21,6 +21,16 @@ import { log } from "@/lib/log";
 const MAX_COMPANIES_PER_RUN = 100;
 const BACKOFF_BASE_SECONDS = 60;
 const BACKOFF_MAX_SECONDS = 6 * 60 * 60; // 6 hours
+// Companies are polled in concurrent batches of this size rather than one at
+// a time — the route has a 60s maxDuration, and MAX_COMPANIES_PER_RUN serial
+// ATS fetches risked running out the clock on a busy run.
+const POLL_CONCURRENCY = 8;
+
+function chunk<T>(items: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+  return out;
+}
 
 export function backoffSeconds(consecutiveErrors: number): number {
   const secs = BACKOFF_BASE_SECONDS * 2 ** Math.max(0, consecutiveErrors - 1);
@@ -131,43 +141,97 @@ async function recordFailure(company: DueCompany): Promise<void> {
     .where(eq(companies.id, company.id));
 }
 
-/** Recipients for the new jobs at a single company (watch- and profile-based). */
-async function watchRecipients(
-  companyId: string,
-  newJobs: SeenJob[],
+interface PollOneResult {
+  error: boolean;
+  newJobCount: number;
+  newForCompany?: { companyId: string; jobs: SeenJob[] };
+}
+
+/** Poll a single company: fetch, insert new jobs, record success/failure. */
+async function pollOne(company: DueCompany): Promise<PollOneResult> {
+  try {
+    const jobs = await fetchAtsJobs(company.provider, company.slug);
+    const inserted = await insertNewJobs(company.id, jobs);
+    await recordSuccess(company.id);
+    return {
+      error: false,
+      newJobCount: inserted.length,
+      newForCompany: inserted.length > 0 ? { companyId: company.id, jobs: inserted } : undefined,
+    };
+  } catch (err) {
+    // Log the failure with safe fields only (no ATS payloads).
+    log.warn("poll_company_failed", {
+      companyId: company.id,
+      provider: company.provider,
+      status: err instanceof AtsFetchError ? err.status : undefined,
+      retryable: err instanceof AtsFetchError ? err.retryable : undefined,
+    });
+    // Either way, back off so one bad board can't wedge the run.
+    await recordFailure(company);
+    return { error: true, newJobCount: 0 };
+  }
+}
+
+/**
+ * Recipients for new jobs across every company that got new jobs this run,
+ * in two queries total (not two per company) — watches+users for all the
+ * companies at once, then profiles for all the involved users at once, both
+ * grouped in memory. Previously this ran per-company inside the poll loop,
+ * which meant up to MAX_COMPANIES_PER_RUN * 2 extra round trips on a busy run.
+ */
+async function batchWatchRecipients(
+  newByCompany: { companyId: string; jobs: SeenJob[] }[],
   acc: Map<string, { user: User; jobId: string }>,
 ): Promise<void> {
+  const companyIds = newByCompany.map((n) => n.companyId);
+  if (companyIds.length === 0) return;
+
   const watchRows = await db
-    .select({ user: users, keywordFilters: watches.keywordFilters, locationFilter: watches.locationFilter })
+    .select({
+      companyId: watches.companyId,
+      user: users,
+      keywordFilters: watches.keywordFilters,
+      locationFilter: watches.locationFilter,
+    })
     .from(watches)
     .innerJoin(users, eq(users.id, watches.userId))
-    .where(and(eq(watches.companyId, companyId), eq(watches.active, true)));
+    .where(and(inArray(watches.companyId, companyIds), eq(watches.active, true)));
 
   if (watchRows.length === 0) return;
 
+  const watchRowsByCompany = new Map<string, typeof watchRows>();
+  for (const w of watchRows) {
+    const list = watchRowsByCompany.get(w.companyId) ?? [];
+    list.push(w);
+    watchRowsByCompany.set(w.companyId, list);
+  }
+
   const userIds = [...new Set(watchRows.map((w) => w.user.id))];
   // Non-cross-company profiles broaden matching over the user's watched companies.
-  const profileRows = userIds.length
-    ? await db
-        .select({ userId: profiles.userId, keywordFilters: profiles.keywordFilters, locationFilter: profiles.locationFilter })
-        .from(profiles)
-        .where(and(eq(profiles.active, true), eq(profiles.crossCompany, false)))
-    : [];
+  const profileRows = await db
+    .select({ userId: profiles.userId, keywordFilters: profiles.keywordFilters, locationFilter: profiles.locationFilter })
+    .from(profiles)
+    .where(
+      and(eq(profiles.active, true), eq(profiles.crossCompany, false), inArray(profiles.userId, userIds)),
+    );
   const profilesByUser = new Map<string, { keywordFilters: string[]; locationFilter: string | null }[]>();
   for (const p of profileRows) {
-    if (!userIds.includes(p.userId)) continue;
     const list = profilesByUser.get(p.userId) ?? [];
     list.push({ keywordFilters: p.keywordFilters, locationFilter: p.locationFilter });
     profilesByUser.set(p.userId, list);
   }
 
-  for (const job of newJobs) {
-    const jobLike = { title: job.title, location: job.location };
-    for (const w of watchRows) {
-      const matched =
-        jobMatchesFilter(jobLike, { keywordFilters: w.keywordFilters, locationFilter: w.locationFilter }) ||
-        (profilesByUser.get(w.user.id) ?? []).some((p) => jobMatchesFilter(jobLike, p));
-      if (matched) acc.set(`${w.user.id}:${job.id}`, { user: w.user, jobId: job.id });
+  for (const { companyId, jobs } of newByCompany) {
+    const companyWatchRows = watchRowsByCompany.get(companyId);
+    if (!companyWatchRows) continue;
+    for (const job of jobs) {
+      const jobLike = { title: job.title, location: job.location };
+      for (const w of companyWatchRows) {
+        const matched =
+          jobMatchesFilter(jobLike, { keywordFilters: w.keywordFilters, locationFilter: w.locationFilter }) ||
+          (profilesByUser.get(w.user.id) ?? []).some((p) => jobMatchesFilter(jobLike, p));
+        if (matched) acc.set(`${w.user.id}:${job.id}`, { user: w.user, jobId: job.id });
+      }
     }
   }
 }
@@ -218,36 +282,23 @@ export async function pollDueCompanies(): Promise<PollResult> {
 
   const newByCompany: { companyId: string; jobs: SeenJob[] }[] = [];
 
-  for (const company of due) {
-    result.companiesPolled += 1;
-    try {
-      const jobs = await fetchAtsJobs(company.provider, company.slug);
-      const inserted = await insertNewJobs(company.id, jobs);
-      await recordSuccess(company.id);
-      if (inserted.length > 0) {
-        newByCompany.push({ companyId: company.id, jobs: inserted });
-        result.newJobs += inserted.length;
+  for (const batch of chunk(due, POLL_CONCURRENCY)) {
+    const results = await Promise.all(batch.map(pollOne));
+    for (const r of results) {
+      result.companiesPolled += 1;
+      if (r.error) {
+        result.errors += 1;
+      } else {
+        result.newJobs += r.newJobCount;
+        if (r.newForCompany) newByCompany.push(r.newForCompany);
       }
-    } catch (err) {
-      result.errors += 1;
-      // Log the failure with safe fields only (no ATS payloads).
-      log.warn("poll_company_failed", {
-        companyId: company.id,
-        provider: company.provider,
-        status: err instanceof AtsFetchError ? err.status : undefined,
-        retryable: err instanceof AtsFetchError ? err.retryable : undefined,
-      });
-      // Either way, back off so one bad board can't wedge the run.
-      await recordFailure(company);
     }
   }
 
   if (newByCompany.length > 0) {
     const acc = new Map<string, { user: User; jobId: string }>();
     const allNew = newByCompany.flatMap((n) => n.jobs);
-    for (const { companyId, jobs } of newByCompany) {
-      await watchRecipients(companyId, jobs, acc);
-    }
+    await batchWatchRecipients(newByCompany, acc);
     await crossCompanyRecipients(allNew, acc);
 
     const recipients = [...acc.values()];

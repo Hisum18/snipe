@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { sql } from "drizzle-orm";
 
 import { auth } from "@/auth";
@@ -14,8 +15,12 @@ import { users, type User } from "@/db/schema";
  *
  * Kept as `getCurrentUser()` so every existing call site (layout, dashboard,
  * pricing, api guard) works unchanged after the Auth.js migration.
+ *
+ * Wrapped in React's `cache()` — the root layout, the (app) shell layout, and
+ * the page itself each call this per request, and without caching that's 3
+ * DB round trips for one piece of data. `cache()` dedupes them to one.
  */
-export async function getCurrentUser(): Promise<User | null> {
+export const getCurrentUser = cache(async (): Promise<User | null> => {
   const session = await auth();
   const email = session?.user?.email;
   if (!email) return null;
@@ -27,7 +32,7 @@ export async function getCurrentUser(): Promise<User | null> {
     .limit(1);
 
   return rows[0] ?? null;
-}
+});
 
 /** Guard for server components / route handlers that require auth. */
 export async function requireUser(): Promise<User> {
