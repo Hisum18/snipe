@@ -48,14 +48,15 @@ export async function sendMagicLinkEmail(
 ): Promise<void> {
   const safeUrl = escapeAttr(magicUrl);
   const html = `<!doctype html>
-<html><body style="font-family:system-ui,sans-serif;background:#0b0f19;color:#e8ecf7;padding:32px">
-  <div style="max-width:480px;margin:0 auto;background:#131826;border-radius:12px;padding:32px">
-    <h1 style="font-size:20px;margin:0 0 12px">Sign in to Snipe</h1>
-    <p style="color:#aab3c9;line-height:1.5">Click the button below to sign in. This link expires in 15 minutes and can be used once.</p>
+<html><body style="font-family:system-ui,sans-serif;background:#EEEAE1;color:#202124;padding:32px">
+  <div style="max-width:480px;margin:0 auto;background:#F8F6F1;border:1px solid #DDD9CF;border-radius:12px;padding:32px">
+    <p style="margin:0 0 20px;font-size:17px;font-weight:700;letter-spacing:-0.01em;color:#C83A35">Snipe</p>
+    <h1 style="font-size:20px;margin:0 0 12px;color:#202124">Sign in to Snipe</h1>
+    <p style="color:#66645E;line-height:1.5">Click the button below to sign in. This link expires in 15 minutes and can be used once.</p>
     <p style="margin:24px 0">
-      <a href="${safeUrl}" style="display:inline-block;background:#5b8cff;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:600">Sign in to Snipe</a>
+      <a href="${safeUrl}" style="display:inline-block;background:#C83A35;color:#F8F6F1;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:600">Sign in to Snipe</a>
     </p>
-    <p style="color:#6b7488;font-size:13px">If you didn't request this, you can safely ignore this email.</p>
+    <p style="color:#85837D;font-size:13px">If you didn't request this, you can safely ignore this email.</p>
   </div>
 </body></html>`;
   const text = `Sign in to Snipe\n\nOpen this link to sign in (expires in 15 minutes, single use):\n${magicUrl}\n\nIf you didn't request this, ignore this email.`;
@@ -74,14 +75,15 @@ function actionEmail(heading: string, body: string, cta: string, url: string): {
 } {
   const safeUrl = escapeAttr(url);
   const html = `<!doctype html>
-<html><body style="font-family:system-ui,sans-serif;background:#000;color:#e8ecf7;padding:32px">
-  <div style="max-width:480px;margin:0 auto;background:#0a0a0a;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:32px">
-    <h1 style="font-size:20px;margin:0 0 12px;color:#fff">${escapeHtml(heading)}</h1>
-    <p style="color:#a3a3a3;line-height:1.5">${escapeHtml(body)}</p>
+<html><body style="font-family:system-ui,sans-serif;background:#EEEAE1;color:#202124;padding:32px">
+  <div style="max-width:480px;margin:0 auto;background:#F8F6F1;border:1px solid #DDD9CF;border-radius:12px;padding:32px">
+    <p style="margin:0 0 20px;font-size:17px;font-weight:700;letter-spacing:-0.01em;color:#C83A35">Snipe</p>
+    <h1 style="font-size:20px;margin:0 0 12px;color:#202124">${escapeHtml(heading)}</h1>
+    <p style="color:#66645E;line-height:1.5">${escapeHtml(body)}</p>
     <p style="margin:24px 0">
-      <a href="${safeUrl}" style="display:inline-block;background:#fff;color:#000;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:600">${escapeHtml(cta)}</a>
+      <a href="${safeUrl}" style="display:inline-block;background:#C83A35;color:#F8F6F1;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:600">${escapeHtml(cta)}</a>
     </p>
-    <p style="color:#6b7488;font-size:13px">If you didn't request this, you can safely ignore this email.</p>
+    <p style="color:#85837D;font-size:13px">If you didn't request this, you can safely ignore this email.</p>
   </div>
 </body></html>`;
   const text = `${heading}\n\n${body}\n\n${cta}: ${url}\n\nIf you didn't request this, ignore this email.`;
@@ -126,6 +128,32 @@ export async function sendExistingAccountEmail(
     signInUrl,
   );
   await sendEmail({ to, subject: "You already have a Snipe account", html, text });
+}
+
+/**
+ * Sent the moment a subscription's payment first fails (past_due/unpaid).
+ * Tracking and notifications are paused at the same time this goes out — the
+ * account can still sign in, but has nothing tracked until the card is fixed.
+ */
+export async function sendPaymentFailedEmail(to: string, billingUrl: string): Promise<void> {
+  const { html, text } = actionEmail(
+    "We couldn't process your payment",
+    "Your card was declined, so your subscription payment failed. Your alerts are paused and no companies are being tracked until this is fixed — update your payment method to pick up right where you left off. You won't be charged again on the old card.",
+    "Update payment method",
+    billingUrl,
+  );
+  await sendEmail({ to, subject: "Action needed: your Snipe payment failed", html, text });
+}
+
+/** Sent once a previously-failed subscription payment recovers. */
+export async function sendPaymentRecoveredEmail(to: string, dashboardUrl: string): Promise<void> {
+  const { html, text } = actionEmail(
+    "You're all set",
+    "Your payment went through and your Snipe alerts are back on.",
+    "Go to dashboard",
+    dashboardUrl,
+  );
+  await sendEmail({ to, subject: "Your Snipe payment succeeded — alerts are back on", html, text });
 }
 
 /** Placeholder demonstrating escaped ATS content in job alert emails. */

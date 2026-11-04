@@ -47,6 +47,24 @@ export async function POST(req: Request) {
       .update(users)
       .set({ stripeCustomerId: customerId, updatedAt: new Date() })
       .where(eq(users.id, user.id));
+  } else {
+    // Never let a customer end up with two live subscriptions (and get charged
+    // twice) by clicking Upgrade/Checkout while one is already active. If they
+    // already have a live subscription, switch IT to the new price in place
+    // (prorated) instead of starting a second Checkout Session. Stripe is
+    // asked directly — the source of truth for "is anything live right now".
+    const existing = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 5 });
+    const live = existing.data.find((s) => ["active", "trialing", "past_due"].includes(s.status));
+    const itemId = live?.items.data[0]?.id;
+    if (live && itemId) {
+      await stripe.subscriptions.update(live.id, {
+        items: [{ id: itemId, price: priceId }],
+        proration_behavior: "create_prorations",
+      });
+      // No new Checkout Session — the existing subscription's webhook
+      // (customer.subscription.updated) syncs the new entitlement.
+      return json({ url: `${env.APP_URL}/billing?upgraded=1` });
+    }
   }
 
   const session = await stripe.checkout.sessions.create({

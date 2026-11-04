@@ -13,6 +13,7 @@ const settingsSchema = z.object({
   // null clears the webhook; a string must pass the Discord host/path check.
   discordWebhookUrl: z.string().trim().max(2048).nullable().optional(),
   emailNotificationsEnabled: z.boolean().optional(),
+  name: z.string().trim().min(1).max(80).optional(),
 });
 
 export async function PATCH(req: Request) {
@@ -35,8 +36,13 @@ export async function PATCH(req: Request) {
   const updates: {
     discordWebhookUrl?: string | null;
     emailNotificationsEnabled?: boolean;
+    name?: string;
     updatedAt?: Date;
   } = {};
+
+  if (parsed.data.name !== undefined) {
+    updates.name = parsed.data.name;
+  }
 
   if (parsed.data.discordWebhookUrl !== undefined) {
     const url = parsed.data.discordWebhookUrl;

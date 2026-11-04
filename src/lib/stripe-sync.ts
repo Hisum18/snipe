@@ -5,7 +5,10 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/db";
 import { subscriptions, users, type User } from "@/db/schema";
-import { tierForPriceId, type PlanTier } from "@/config/plans";
+import { isPaymentSuspended, tierForPriceId, type PlanTier } from "@/config/plans";
+import { getServerEnv } from "@/env";
+import { sendPaymentFailedEmail, sendPaymentRecoveredEmail } from "@/lib/email";
+import { log } from "@/lib/log";
 import { getStripe } from "@/lib/stripe";
 import { reconcileProfilesToPlan, reconcileWatchesToPlan } from "@/lib/entitlements";
 
@@ -58,10 +61,16 @@ export async function syncSubscriptionToUser(
 
   // Record/refresh the subscription row (idempotent upsert).
   if (priceId) {
-    const periodEnd =
-      typeof sub.current_period_end === "number"
-        ? new Date(sub.current_period_end * 1000)
-        : null;
+    // Stripe moved current_period_end from the subscription to its first item
+    // in newer API versions (2025-03-31+). Webhook payloads are serialized at
+    // whatever API version the endpoint/CLI forwarder is using, which can be
+    // newer than the version this SDK's types model — so check both shapes
+    // rather than trusting only the (possibly absent) top-level field.
+    const itemPeriodEnd = (
+      sub.items.data[0] as unknown as { current_period_end?: number } | undefined
+    )?.current_period_end;
+    const rawPeriodEnd = sub.current_period_end ?? itemPeriodEnd;
+    const periodEnd = typeof rawPeriodEnd === "number" ? new Date(rawPeriodEnd * 1000) : null;
     await db
       .insert(subscriptions)
       .values({
@@ -88,6 +97,7 @@ export async function syncSubscriptionToUser(
   const mapping = priceId ? tierForPriceId(priceId) : null;
   const tier: PlanTier = opts.revoke ? "free" : (mapping?.tier ?? "free");
   const status = opts.revoke ? "canceled" : sub.status;
+  const previousStatus = user.planStatus;
 
   await db
     .update(users)
@@ -95,10 +105,28 @@ export async function syncSubscriptionToUser(
     .where(eq(users.id, user.id));
 
   // Reconcile watches/profiles to the (possibly lower) new limit. Uses the
-  // effective tier, so past_due/canceled correctly fall back to Free limits.
+  // effective tier, so past_due/canceled correctly fall back to Free limits;
+  // a payment-suspended status forces the cap to 0 (see entitlements.ts).
   const updated: User = { ...user, plan: tier, planStatus: status };
   await reconcileWatchesToPlan(updated);
   await reconcileProfilesToPlan(updated);
+
+  // Email on the SUSPENSION EDGE only (not on every Stripe retry attempt, and
+  // not on a deliberate cancellation) so the user isn't spammed and always
+  // hears about both the pause and the recovery exactly once.
+  const wasSuspended = isPaymentSuspended(previousStatus);
+  const nowSuspended = isPaymentSuspended(status);
+  if (!wasSuspended && nowSuspended) {
+    const appUrl = getServerEnv().APP_URL;
+    await sendPaymentFailedEmail(user.email, `${appUrl}/billing`).catch((err) => {
+      log.warn("payment_failed_email_error", { userId: user.id, error: String(err) });
+    });
+  } else if (wasSuspended && !nowSuspended) {
+    const appUrl = getServerEnv().APP_URL;
+    await sendPaymentRecoveredEmail(user.email, `${appUrl}/dashboard`).catch((err) => {
+      log.warn("payment_recovered_email_error", { userId: user.id, error: String(err) });
+    });
+  }
 }
 
 /** Route a verified Stripe event to the right handler. Idempotency is enforced

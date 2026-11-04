@@ -7,6 +7,7 @@ import { profiles, users, watches, type User } from "@/db/schema";
 import {
   HARD_MAX_PROFILES_PER_USER,
   HARD_MAX_WATCHES_PER_USER,
+  isPaymentSuspended,
   limitsFor,
 } from "@/config/plans";
 
@@ -14,10 +15,16 @@ import {
  * Reconcile a user's watches to their current plan limit. On downgrade we keep
  * the OLDEST N active and deactivate the rest (never delete); on upgrade the
  * previously-deactivated ones reactivate, oldest first. Idempotent.
+ *
+ * A user whose payment failed (`isPaymentSuspended`) gets a hard 0 cap — every
+ * watch is deactivated, not just capped to Free's normal allowance — until the
+ * card is fixed and Stripe reports the subscription active again.
  */
 export async function reconcileWatchesToPlan(user: User): Promise<void> {
   const limits = limitsFor(user.plan, user.planStatus);
-  const cap = Math.min(limits.maxCompanies ?? HARD_MAX_WATCHES_PER_USER, HARD_MAX_WATCHES_PER_USER);
+  const cap = isPaymentSuspended(user.planStatus)
+    ? 0
+    : Math.min(limits.maxCompanies ?? HARD_MAX_WATCHES_PER_USER, HARD_MAX_WATCHES_PER_USER);
 
   const rows = await db
     .select({ id: watches.id })
@@ -39,7 +46,9 @@ export async function reconcileWatchesToPlan(user: User): Promise<void> {
 /** Same policy for notification profiles against the plan's profile limit. */
 export async function reconcileProfilesToPlan(user: User): Promise<void> {
   const limits = limitsFor(user.plan, user.planStatus);
-  const cap = Math.min(limits.maxProfiles ?? HARD_MAX_PROFILES_PER_USER, HARD_MAX_PROFILES_PER_USER);
+  const cap = isPaymentSuspended(user.planStatus)
+    ? 0
+    : Math.min(limits.maxProfiles ?? HARD_MAX_PROFILES_PER_USER, HARD_MAX_PROFILES_PER_USER);
 
   const rows = await db
     .select({ id: profiles.id })

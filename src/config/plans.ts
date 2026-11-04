@@ -144,6 +144,20 @@ export function priceIdFor(
 const ENTITLED_STATUSES = new Set(["active", "trialing"]);
 
 /**
+ * Stripe statuses that mean a charge FAILED on what should be a paid sub, as
+ * opposed to a deliberate cancellation. Unlike a plain downgrade-to-free
+ * (which still gets Free's normal 3-company allowance), these fully suspend
+ * tracking (see `entitlements.ts` reconcile helpers) and trigger the
+ * payment-failed email — the account can still sign in, but nothing is
+ * tracked and no notifications go out until the card is fixed.
+ */
+const PAYMENT_SUSPENDED_STATUSES = new Set(["past_due", "unpaid", "incomplete", "incomplete_expired"]);
+
+export function isPaymentSuspended(planStatus: string): boolean {
+  return PAYMENT_SUSPENDED_STATUSES.has(planStatus);
+}
+
+/**
  * Resolve the EFFECTIVE entitlement tier from the plan tier stored on the user
  * and their raw Stripe status. This is what every limit check reads.
  */

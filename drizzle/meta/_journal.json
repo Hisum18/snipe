@@ -15,6 +15,13 @@
       "when": 1788314226065,
       "tag": "0001_wild_random",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788751150203,
+      "tag": "0002_orange_hitman",
+      "breakpoints": true
     }
   ]
 }

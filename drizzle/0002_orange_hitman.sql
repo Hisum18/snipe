@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "dashboard_tour_dismissed_at" timestamp with time zone;

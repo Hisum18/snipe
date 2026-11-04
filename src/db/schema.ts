@@ -70,6 +70,9 @@ export const users = pgTable(
     phoneE164: text("phone_e164"),
     phoneVerifiedAt: timestamp("phone_verified_at", { withTimezone: true }),
 
+    // Null until the dashboard walkthrough is skipped or finished; shown once.
+    dashboardTourDismissedAt: timestamp("dashboard_tour_dismissed_at", { withTimezone: true }),
+
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
