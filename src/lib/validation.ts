@@ -60,6 +60,33 @@ export const checkoutSchema = z.object({
   interval: z.enum(["monthly", "annual"]),
 });
 
+// Snipe's own billing pages (/api/billing/*). Stripe ids are shape-checked
+// here and ownership-checked against the session's customer in the routes.
+const setupIntentIdSchema = z.string().regex(/^seti_[A-Za-z0-9]{1,255}$/);
+const promotionCodeSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(64)
+  .regex(/^[A-Za-z0-9_-]+$/, "Codes use letters, numbers, - and _ only");
+
+export const subscribeSchema = checkoutSchema.extend({
+  setupIntentId: setupIntentIdSchema,
+  promotionCode: promotionCodeSchema.optional(),
+});
+
+export const promoPreviewSchema = checkoutSchema.extend({
+  code: promotionCodeSchema,
+});
+
+export const paymentMethodUpdateSchema = z.object({
+  setupIntentId: setupIntentIdSchema,
+});
+
+export const cancellationSchema = z.object({
+  action: z.enum(["cancel", "resume"]),
+});
+
 export const discordWebhookSchema = z.object({
   discordWebhookUrl: z.string().trim().url().max(2048).nullable(),
 });

@@ -16,9 +16,11 @@ export function proxy(request: NextRequest) {
 
   const isDev = process.env.NODE_ENV !== "production";
   // In dev, Next injects eval-based HMR/refresh scripts; allow them in dev only.
+  // Stripe.js (Embedded Checkout) is injected by our nonce'd bundle, so
+  // strict-dynamic already admits it; the host is listed for CSP2 browsers.
   const scriptSrc = isDev
-    ? `'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval'`
-    : `'self' 'nonce-${nonce}' 'strict-dynamic'`;
+    ? `'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval' https://js.stripe.com`
+    : `'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com`;
 
   const csp = [
     `default-src 'self'`,
@@ -26,11 +28,11 @@ export function proxy(request: NextRequest) {
     // Tailwind ships a static stylesheet; style-src 'self' is enough. We allow
     // inline styles because React sets a few (e.g. hidden) — no script risk.
     `style-src 'self' 'unsafe-inline'`,
-    `img-src 'self' data: blob:`,
+    `img-src 'self' data: blob: https://*.stripe.com`,
     `font-src 'self'`,
-    // The browser only ever talks to our own origin from the client.
-    `connect-src 'self'`,
-    `frame-src 'self' https://js.stripe.com https://checkout.stripe.com`,
+    // Our own origin, plus Stripe for Embedded Checkout (the upgrade dialog).
+    `connect-src 'self' https://api.stripe.com https://checkout.stripe.com`,
+    `frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com https://hooks.stripe.com`,
     `form-action 'self'`,
     `frame-ancestors 'none'`,
     `base-uri 'self'`,
