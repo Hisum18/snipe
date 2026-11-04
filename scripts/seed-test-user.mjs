@@ -1,14 +1,21 @@
 // Seed a known test account for manual testing.
 //
 //   1) make sure the auth migration is applied:  npm run db:migrate
-//   2) run:  node --env-file=.env.local scripts/seed-test-user.mjs
+//   2) set SEED_TEST_PASSWORD in .env.local (never commit it)
+//   3) run:  node --env-file=.env.local scripts/seed-test-user.mjs
 //
+// The password is read from the environment so it never lives in the repo.
 // Uses node-postgres so it works against a local Postgres or Neon (over TCP).
 import bcrypt from "bcryptjs";
 import pg from "pg";
 
 const EMAIL = "demo@snipe.test";
-const PASSWORD = "REPLACE_WITH_A_LOCAL_PASSWORD";
+const PASSWORD = process.env.SEED_TEST_PASSWORD;
+
+if (!PASSWORD || PASSWORD.length < 12) {
+  console.error("SEED_TEST_PASSWORD is not set (12+ characters). Add it to .env.local.");
+  process.exit(1);
+}
 
 const url = process.env.DATABASE_URL;
 if (!url) {
@@ -48,7 +55,7 @@ try {
     );
     console.log("Created the test account.");
   }
-  console.log(`\n  Sign in at /login with:\n    email:    ${EMAIL}\n    password: ${PASSWORD}\n`);
+  console.log(`\n  Sign in at /login as ${EMAIL} with the SEED_TEST_PASSWORD from .env.local.\n`);
 } catch (err) {
   console.error("Seed failed:", err.message);
   console.error("Did you run the migration (npm run db:migrate) first?");
