@@ -241,7 +241,7 @@ export default async function DashboardPage() {
         <section
           data-tour="stats"
           aria-label="Your activity"
-          className="animate-enter grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+          className="animate-enter grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
         >
           <StatCard
             label="Companies tracked"
@@ -278,7 +278,7 @@ export default async function DashboardPage() {
         </section>
 
         {/* Chart + plan */}
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <section
             className="card-glass animate-enter rounded-2xl p-6 lg:col-span-2"
             style={{ animationDelay: "60ms" }}
@@ -322,7 +322,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Watched companies + recent matches */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <section
             id="watching"
             className="card-glass animate-enter scroll-mt-24 rounded-2xl p-6"
