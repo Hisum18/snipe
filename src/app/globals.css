@@ -64,12 +64,12 @@
   --border-strong: 201 196 184; /* #C9C4B8 — outlines on buttons/inputs */
 
   /* Brand */
-  --brand: 200 58 53; /* #C83A35 racing red — marks, lines, display text */
-  --brand-text: 176 50 46; /* #B0322E — red for small text/links, 5.2:1 */
-  --brand-fill: 200 58 53; /* button fill */
-  --brand-ink: 248 246 241; /* light-linen label on red — 4.7:1 */
-  --selected: 233 209 201; /* #E9D1C9 — red tint on linen */
-  --selected-fg: 160 45 41; /* #A02D29 — 5.0:1 on the tint */
+  --brand: 30 122 71; /* #1E7A47 signal green — marks, lines, display text */
+  --brand-text: 24 105 60; /* #18693C — green for small text/links, 5.6:1 */
+  --brand-fill: 30 122 71; /* button fill */
+  --brand-ink: 248 246 241; /* light-linen label on green — 4.9:1 */
+  --selected: 213 227 211; /* #D5E3D3 — green tint on linen */
+  --selected-fg: 21 92 52; /* #155C34 — 6.0:1 on the tint */
   --accent-2: 155 153 147; /* #9B9993 concrete */
   --accent-2-ink: 32 33 36; /* label on concrete (avatars) — 5.7:1 */
 
@@ -81,9 +81,9 @@
   --live: var(--brand);
   --shadow: 32 33 36; /* carbon-tinted shadows */
 
-  /* The hero's display words ("the flood."): racing red, no marker. */
-  --hl-fg: 200 58 53;
-  --hl-mark: 200 58 53;
+  /* The hero's display words ("the flood."): signal green, no marker. */
+  --hl-fg: 30 122 71;
+  --hl-mark: 30 122 71;
   --hl-mark-size: 0;
 
   /* Aliases — each resolves to the palette above */
