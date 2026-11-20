@@ -119,12 +119,12 @@
     --border: 54 55 58; /* #36373A */
     --border-strong: 71 72 75; /* #47484B */
 
-    --brand: 200 58 53; /* #C83A35 racing red — marks, lines, display text */
-    --brand-text: 235 109 103; /* #EB6D67 — red for small text/links, 5.3:1 */
-    --brand-fill: 200 58 53; /* racing-red buttons in both themes */
-    --brand-ink: 248 246 241; /* light-linen label on red — 4.7:1 */
-    --selected: 59 37 39; /* #3B2527 — red tint on carbon */
-    --selected-fg: 240 127 121; /* #F07F79 — 5.4:1 on the tint */
+    --brand: 52 184 106; /* #34B86A signal green — marks, lines, display text, 6.3:1 */
+    --brand-text: 91 217 142; /* #5BD98E — green for small text/links, 9.0:1 */
+    --brand-fill: 30 122 71; /* #1E7A47 green buttons in both themes */
+    --brand-ink: 248 246 241; /* light-linen label on green — 4.9:1 */
+    --selected: 31 51 39; /* #1F3327 — green tint on carbon */
+    --selected-fg: 110 231 160; /* #6EE7A0 — 8.7:1 on the tint */
     --accent-2: 155 153 147; /* #9B9993 concrete */
 
     --destructive: 245 154 142; /* #F59A8E */
@@ -132,7 +132,7 @@
     --warning: 222 170 80;
     --shadow: 0 0 0;
 
-    --hl-fg: 200 58 53;
+    --hl-fg: 52 184 106;
     --hl-mark-size: 0;
 
     --surface-2: 42 43 46;
@@ -162,12 +162,12 @@
   --border: 54 55 58; /* #36373A */
   --border-strong: 71 72 75; /* #47484B */
 
-  --brand: 200 58 53; /* #C83A35 racing red — marks, lines, display text */
-  --brand-text: 235 109 103; /* #EB6D67 — red for small text/links, 5.3:1 */
-  --brand-fill: 200 58 53; /* racing-red buttons in both themes */
-  --brand-ink: 248 246 241; /* light-linen label on red — 4.7:1 */
-  --selected: 59 37 39; /* #3B2527 — red tint on carbon */
-  --selected-fg: 240 127 121; /* #F07F79 — 5.4:1 on the tint */
+  --brand: 52 184 106; /* #34B86A signal green — marks, lines, display text, 6.3:1 */
+  --brand-text: 91 217 142; /* #5BD98E — green for small text/links, 9.0:1 */
+  --brand-fill: 30 122 71; /* #1E7A47 green buttons in both themes */
+  --brand-ink: 248 246 241; /* light-linen label on green — 4.9:1 */
+  --selected: 31 51 39; /* #1F3327 — green tint on carbon */
+  --selected-fg: 110 231 160; /* #6EE7A0 — 8.7:1 on the tint */
   --accent-2: 155 153 147; /* #9B9993 concrete */
 
   --destructive: 245 154 142; /* #F59A8E */
@@ -175,7 +175,7 @@
   --warning: 222 170 80;
   --shadow: 0 0 0;
 
-  --hl-fg: 200 58 53;
+  --hl-fg: 52 184 106;
   --hl-mark-size: 0;
 
   --surface-2: 42 43 46;
