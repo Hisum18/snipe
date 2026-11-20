@@ -113,7 +113,7 @@ export default async function JobsPage({
                 : "Nothing yet. New roles at your watched companies will show up here."}
             </p>
           ) : (
-            <ul className="grid gap-2.5 sm:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               {rows.map((j) => (
                 <li
                   key={j.jobId}
@@ -125,7 +125,7 @@ export default async function JobsPage({
                       href={j.url}
                       target="_blank"
                       rel="noopener noreferrer nofollow"
-                      className="truncate font-normal text-white hover:text-brand-text hover:underline"
+                      className="block truncate font-normal text-white hover:text-brand-text hover:underline"
                     >
                       {j.title}
                     </a>
