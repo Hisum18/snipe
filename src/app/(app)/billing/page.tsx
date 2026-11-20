@@ -87,6 +87,8 @@ export default async function BillingPage() {
 
   let card: CardSummary | null = null;
   let invoices: InvoiceSummary[] = [];
+  // Live renewal date from Stripe; the stored copy only moves when a webhook lands.
+  let livePeriodEnd: Date | null = null;
 
   // Stripe is an external dependency — never let a hiccup there break the
   // whole page. The subscription facts above already came from our own DB.
@@ -104,6 +106,12 @@ export default async function BillingPage() {
           expand: ["default_payment_method"],
         });
         const subPm = sub.default_payment_method;
+        // Newer API versions moved current_period_end onto the first item.
+        const rawEnd =
+          (sub as unknown as { current_period_end?: number }).current_period_end ??
+          (sub.items.data[0] as unknown as { current_period_end?: number } | undefined)
+            ?.current_period_end;
+        if (typeof rawEnd === "number") livePeriodEnd = new Date(rawEnd * 1000);
         if (subPm && typeof subPm !== "string") pm = subPm;
       }
       if (!pm) {
@@ -140,6 +148,8 @@ export default async function BillingPage() {
       // the plan summary from our own DB.
     }
   }
+
+  const periodEnd = livePeriodEnd ?? subRow?.currentPeriodEnd ?? null;
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -217,9 +227,7 @@ export default async function BillingPage() {
             ) : subRow.cancelAtPeriodEnd ? (
               <p className="mt-3 text-sm text-neutral-300">
                 Your plan is set to cancel
-                {subRow.currentPeriodEnd
-                  ? ` on ${formatDate(subRow.currentPeriodEnd)}`
-                  : ""}
+                {periodEnd ? ` on ${formatDate(periodEnd)}` : ""}
                 . You&apos;ll keep {limits.label} access until then.
               </p>
             ) : (
@@ -228,9 +236,7 @@ export default async function BillingPage() {
                   {nextAmountCents !== null ? formatCents(nextAmountCents) : "—"}
                 </span>
                 <span className="text-xs text-neutral-500">
-                  {subRow.currentPeriodEnd
-                    ? `Due ${formatDate(subRow.currentPeriodEnd)}`
-                    : "Date unavailable"}
+                  {periodEnd ? `Due ${formatDate(periodEnd)}` : "Date unavailable"}
                 </span>
               </div>
             )}
