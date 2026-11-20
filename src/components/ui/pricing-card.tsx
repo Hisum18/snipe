@@ -113,10 +113,10 @@ export function PricingSection({
           <ToggleGroupItem
             value="annually"
             aria-label="Annual billing"
-            className="relative h-9 rounded-md px-6 text-sm font-normal text-neutral-400 hover:bg-white/[0.05] hover:text-white data-[state=on]:bg-surface data-[state=on]:text-brand-text data-[state=on]:shadow-card"
+            className="h-9 gap-2 rounded-md px-5 text-sm font-normal text-neutral-400 hover:bg-white/[0.05] hover:text-white data-[state=on]:bg-surface data-[state=on]:text-brand-text data-[state=on]:shadow-card"
           >
             Annually
-            <span className="absolute -right-3 -top-3 z-10 whitespace-nowrap rounded-md bg-accent px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-accent-foreground">
+            <span className="whitespace-nowrap rounded bg-accent px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-accent-foreground">
               Save {annualDiscountPercent}%
             </span>
           </ToggleGroupItem>
