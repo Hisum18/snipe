@@ -138,7 +138,10 @@ export default async function BillingPage() {
       invoices = invoiceList.data.map((inv) => ({
         id: inv.id ?? inv.number ?? crypto.randomUUID(),
         date: new Date((inv.created ?? 0) * 1000),
-        description: inv.lines.data[0]?.description ?? "Snipe subscription",
+        // Stripe's line text reads "1 × Snipe Max (Monthly) (at $20.00 / month)".
+        description: (inv.lines.data[0]?.description ?? "Snipe subscription")
+          .replace(/^\d+ × /, "")
+          .replace(/ \(at [^)]*\)$/, ""),
         amount: inv.amount_paid,
         status: inv.status ?? "unknown",
         url: inv.hosted_invoice_url ?? null,
