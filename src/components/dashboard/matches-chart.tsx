@@ -175,7 +175,9 @@ export function MatchesChart({ data }: { data: ChartPoint[] }) {
         <div />
         <div className="relative mt-2 h-4" aria-hidden="true">
           {data.map((d, i) =>
-            i % 2 === 0 || i === last ? (
+            // The last label is pinned to the right edge, so drop any tick within
+            // two days of it or the two dates print on top of each other.
+            (i % 2 === 0 && last - i >= 2) || i === last ? (
               <span
                 key={d.label}
                 className={cn(
