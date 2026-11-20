@@ -56,7 +56,7 @@ interface PricingSectionProps {
 
 function Cell({ value }: { value: ComparisonCell }) {
   if (typeof value === "string") {
-    return <span className="text-sm text-neutral-200">{value}</span>;
+    return <span className="text-xs text-neutral-200 sm:text-sm">{value}</span>;
   }
   return value ? (
     <Check className="mx-auto h-5 w-5 text-white" aria-label="Included" />
@@ -253,12 +253,12 @@ export function PricingSection({
           Compare every feature
         </h2>
         <div className="overflow-x-auto rounded-xl border border-white/[0.08]">
-          <table className="min-w-full divide-y divide-white/[0.08]">
+          <table className="w-full divide-y divide-white/[0.08]">
             <thead>
               <tr className="bg-white/[0.03]">
                 <th
                   scope="col"
-                  className="w-[220px] whitespace-nowrap px-6 py-4 text-left text-sm font-normal text-neutral-400"
+                  className="px-3 py-3 text-left text-xs font-normal text-neutral-400 sm:w-[220px] sm:whitespace-nowrap sm:px-6 sm:py-4 sm:text-sm"
                 >
                   Feature
                 </th>
@@ -267,7 +267,7 @@ export function PricingSection({
                     key={plan.id}
                     scope="col"
                     className={cn(
-                      "whitespace-nowrap px-6 py-4 text-center text-sm font-normal",
+                      "whitespace-nowrap px-2 py-3 text-center text-xs font-normal sm:px-6 sm:py-4 sm:text-sm",
                       plan.isPopular
                         ? "bg-white/[0.06] text-white"
                         : "text-neutral-300",
@@ -281,14 +281,14 @@ export function PricingSection({
             <tbody className="divide-y divide-white/[0.06]">
               {comparison.map((row, i) => (
                 <tr key={row.label} className={cn(i % 2 === 1 && "bg-white/[0.02]")}>
-                  <td className="whitespace-nowrap px-6 py-3 text-left text-sm font-normal text-neutral-200">
+                  <td className="px-3 py-3 text-left text-xs font-normal text-neutral-200 sm:whitespace-nowrap sm:px-6 sm:text-sm">
                     {row.label}
                   </td>
                   {plans.map((plan) => (
                     <td
                       key={plan.id}
                       className={cn(
-                        "px-6 py-3 text-center",
+                        "px-2 py-3 text-center sm:px-6",
                         plan.isPopular && "bg-white/[0.04]",
                       )}
                     >
