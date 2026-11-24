@@ -6,7 +6,7 @@ import { profiles } from "@/db/schema";
 import { limitsFor } from "@/config/plans";
 import { enforceRateLimit, json, requireApiUser } from "@/lib/api";
 import { writeByUser } from "@/lib/ratelimit";
-import { profileSchema } from "@/lib/validation";
+import { profileUpdateSchema } from "@/lib/validation";
 
 export const runtime = "nodejs";
 
@@ -32,7 +32,7 @@ export async function PATCH(
   } catch {
     return json({ error: "Invalid JSON" }, 400);
   }
-  const parsed = profileSchema.partial().safeParse(body);
+  const parsed = profileUpdateSchema.safeParse(body);
   if (!parsed.success) return json({ error: "Invalid request" }, 400);
 
   if (parsed.data.crossCompany && !limitsFor(user.plan, user.planStatus).crossCompanySearch) {

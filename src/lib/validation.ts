@@ -13,10 +13,13 @@ export const emailSchema = z
   .max(254); // RFC 5321 max
 
 // Keyword filters: a bounded list of short, plain strings. No control chars.
-export const keywordFiltersSchema = z
+const keywordListSchema = z
   .array(z.string().trim().min(1).max(80).regex(/^[^\x00-\x1f]*$/))
-  .max(25)
-  .default([]);
+  .max(25);
+
+// For creates. Update schemas use keywordListSchema without a default: Zod 4
+// fills defaults even inside optional fields, which would wipe saved filters.
+export const keywordFiltersSchema = keywordListSchema.default([]);
 
 export const locationFilterSchema = z
   .string()
@@ -44,15 +47,25 @@ export const addWatchSchema = z.object({
 });
 
 export const updateWatchSchema = z.object({
-  keywordFilters: keywordFiltersSchema.optional(),
+  keywordFilters: keywordListSchema.optional(),
   locationFilter: locationFilterSchema,
 });
 
+const profileNameSchema = z.string().trim().min(1).max(80).regex(/^[^\x00-\x1f]*$/);
+
 export const profileSchema = z.object({
-  name: z.string().trim().min(1).max(80).regex(/^[^\x00-\x1f]*$/),
+  name: profileNameSchema,
   keywordFilters: keywordFiltersSchema,
   locationFilter: locationFilterSchema,
   crossCompany: z.boolean().default(false),
+});
+
+// Every field optional and no defaults, so a partial edit only touches what was sent.
+export const profileUpdateSchema = z.object({
+  name: profileNameSchema.optional(),
+  keywordFilters: keywordListSchema.optional(),
+  locationFilter: locationFilterSchema,
+  crossCompany: z.boolean().optional(),
 });
 
 export const checkoutSchema = z.object({
